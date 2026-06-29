@@ -1,0 +1,14 @@
+node_modules
+.git
+.gitignore
+.env
+.env.example
+*.zip
+data/
+C:\Users\munch\.gemini\antigravity-ide\scratch/
+C:\Users\munch\.gemini\antigravity-ide/
+mcp_config.json
+response.json
+call_response.json
+test_mcp.js
+call_mcp.js
