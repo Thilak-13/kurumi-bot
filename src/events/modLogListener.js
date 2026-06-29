@@ -189,8 +189,8 @@ async function extractUserId(message) {
     return null;
 }
 
-async function findOrCreateUserThread(guild, userId) {
-    const forum = await guild.channels.fetch(FORUM_CHANNEL_ID).catch(() => null);
+async function findOrCreateUserThread(guild, userId, forumChannelId = FORUM_CHANNEL_ID) {
+    const forum = await guild.channels.fetch(forumChannelId).catch(() => null);
     if (!forum || forum.type !== ChannelType.GuildForum) return null;
 
     const findMatch = (threadCollection) => {
@@ -229,24 +229,44 @@ async function findOrCreateUserThread(guild, userId) {
 module.exports = {
     name: 'messageCreate',
     async execute(message) {
-        if (!message?.guild) return;
+        try {
+            if (!message?.guild) return;
 
-        // Listen only to Sapphire logs in the specific moderation log channel.
-        if (message.channelId !== MOD_LOG_CHANNEL_ID) return;
-        if (!SAPPHIRE_BOT_ID || message.author?.id !== SAPPHIRE_BOT_ID) return;
+            const db = message.client.database;
+            let modLogChannelId = MOD_LOG_CHANNEL_ID;
+            let forumChannelId = FORUM_CHANNEL_ID;
+            let enabled = true;
 
-        const userId = await extractUserId(message);
-        if (!userId) return;
+            if (db && db.connected) {
+                const settings = db.getGuildSettings(message.guild.id);
+                if (settings && settings.forumLogger) {
+                    enabled = settings.forumLogger.enabled;
+                    modLogChannelId = settings.forumLogger.modLogChannelId;
+                    forumChannelId = settings.forumLogger.forumChannelId;
+                }
+            }
 
-        const thread = await findOrCreateUserThread(message.guild, userId);
-        if (!thread) return;
+            if (!enabled) return;
 
-        // Mirror the original message payload exactly: content + embeds + attachment URLs.
-        await thread.send({
-            content: message.content || null,
-            embeds: message.embeds.map((embed) => embed.toJSON()),
-            files: message.attachments.map((attachment) => attachment.url)
-        });
+            // Listen only to Sapphire logs in the configured moderation log channel.
+            if (message.channelId !== modLogChannelId) return;
+            if (!SAPPHIRE_BOT_ID || message.author?.id !== SAPPHIRE_BOT_ID) return;
+
+            const userId = await extractUserId(message);
+            if (!userId) return;
+
+            const thread = await findOrCreateUserThread(message.guild, userId, forumChannelId);
+            if (!thread) return;
+
+            // Mirror the original message payload exactly: content + embeds + attachment URLs.
+            await thread.send({
+                content: message.content || null,
+                embeds: message.embeds.map((embed) => embed.toJSON()),
+                files: message.attachments.map((attachment) => attachment.url)
+            });
+        } catch (error) {
+            console.error('❌ Error in modLogListener messageCreate execution:', error);
+        }
     },
 
     extractUserId,

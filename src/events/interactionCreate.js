@@ -3,6 +3,9 @@
  * Handles slash commands and other interactions
  */
 
+const config = require('../config/config');
+const { EmbedBuilder } = require('discord.js');
+
 module.exports = {
     name: 'interactionCreate',
     
@@ -13,15 +16,20 @@ module.exports = {
             
             if (!command) {
                 console.warn(`⚠️ No command matching ${interaction.commandName} was found.`);
-                // Always acknowledge slash interactions to avoid Discord timeout message.
-                await interaction.reply({
-                    content: '❌ This command is currently unavailable. Try running `/deploy` updates or restarting the bot.',
-                    ephemeral: true
-                }).catch(console.error);
                 return;
             }
             
             try {
+                const memberRoleIds = Array.from(interaction.member?.roles?.cache?.keys?.() || []);
+                const canUse = interaction.client.accessControl?.canUse(interaction.commandName, interaction.user.id, memberRoleIds) || interaction.user.id === config.ownerId;
+
+                if (!canUse) {
+                    const embed = new EmbedBuilder()
+                        .setTitle('❌ Permission Denied')
+                        .setDescription('You do not have the required permissions to use this command.')
+                        .setColor('#e74c3c');
+                    return interaction.reply({ embeds: [embed], ephemeral: true });
+                }
                 // Log command usage
                 console.log(`[SLASH CMD] ${interaction.user.tag} used /${interaction.commandName} in ${interaction.guild?.name || 'DM'}`);
                 
@@ -31,8 +39,13 @@ module.exports = {
             } catch (error) {
                 console.error(`❌ Error executing /${interaction.commandName}:`, error);
                 
+                const errorEmbed = new EmbedBuilder()
+                    .setTitle('❌ Command Error')
+                    .setDescription('An error occurred while executing this command.')
+                    .setColor('#e74c3c');
+                
                 const errorMessage = {
-                    content: '❌ There was an error executing this command!',
+                    embeds: [errorEmbed],
                     ephemeral: true
                 };
                 

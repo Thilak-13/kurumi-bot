@@ -6,6 +6,7 @@ const { Client, Collection, GatewayIntentBits } = require('discord.js');
 const config = require('./src/config/config');
 const Logger = require('./src/systems/logger');
 const Database = require('./src/systems/database');
+const AccessControl = require('./src/systems/accessControl');
 
 // Create Discord client
 const client = new Client({
@@ -25,6 +26,7 @@ client.commands = new Collection();
 // Initialize systems
 client.logger = new Logger(client);
 client.database = new Database();
+client.accessControl = new AccessControl();
 
 /**
  * Load all commands from the commands directory (supports both slash and message commands)
@@ -136,6 +138,13 @@ async function start() {
         process.exit(1);
     }
 
+    // Connect to database
+    try {
+        await client.database.connect();
+    } catch (err) {
+        console.error('Failed to connect to database:', err.message);
+    }
+
     // Load commands and events
     loadCommands();
     loadEvents();
@@ -143,6 +152,22 @@ async function start() {
     // Login to Discord
     try {
         await client.login(config.token);
+        // initialize manga scheduler (timers for chapter counters)
+        try {
+            const mangaScheduler = require('./src/systems/mangaScheduler');
+            await mangaScheduler.init(client);
+            console.log('✅ Manga scheduler initialized');
+        } catch (err) {
+            console.error('Failed to initialize manga scheduler:', err.message);
+        }
+        // initialize auto purge engine (event-driven)
+        try {
+            const autoPurgeEngine = require('./src/systems/autoPurgeEngine');
+            await autoPurgeEngine.init(client);
+            console.log('✅ AutoPurge engine initialized');
+        } catch (err) {
+            console.error('Failed to initialize AutoPurge engine:', err.message);
+        }
     } catch (error) {
         console.error('❌ Login failed:', error.message);
         process.exit(1);

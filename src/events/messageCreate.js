@@ -20,24 +20,27 @@ module.exports = {
         // Ignore non-command messages.
         if (!usedPrefix) return;
 
-        // Owner-only check
-        if (message.author.id !== config.ownerId) {
-            return message.reply('❌ Unauthorized. This bot is private.').catch(() => {});
-        }
-
         // Parse command and args
         const rawInput = content.slice(usedPrefix.length).trim();
         if (!rawInput) {
-            return message.reply(`Use \`${prefix}ping\` to test commands.`).catch(() => {});
+            return;
         }
 
         const args = rawInput.split(/ +/);
         const commandName = (args.shift() || '').toLowerCase();
+        const normalizedCommandName = commandName.replace(/-/g, '');
 
-        const command = message.client.commands.get(commandName);
+        const command = message.client.commands.get(commandName) || message.client.commands.get(normalizedCommandName);
 
         if (!command) {
-            return message.reply(`❌ Unknown command: \`${commandName}\``).catch(() => {});
+            return;
+        }
+
+        const roleIds = Array.from(message.member?.roles?.cache?.keys?.() || []);
+        const canUse = message.client.accessControl?.canUse(command.name, message.author.id, roleIds) || message.author.id === config.ownerId;
+
+        if (!canUse) {
+            return;
         }
 
         try {

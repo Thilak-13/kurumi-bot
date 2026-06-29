@@ -1,5 +1,6 @@
 const fs = require('fs');
 const path = require('path');
+const { EmbedBuilder } = require('discord.js');
 
 module.exports = {
     name: 'reload',
@@ -26,7 +27,10 @@ module.exports = {
                         delete require.cache[require.resolve(filePath)];
                         const command = require(filePath);
                         
-                        if ('name' in command && 'execute' in command) {
+                        if ('data' in command && 'execute' in command) {
+                            message.client.commands.set(command.data.name, command);
+                            reloaded++;
+                        } else if ('name' in command && 'execute' in command) {
                             message.client.commands.set(command.name, command);
                             reloaded++;
                         }
@@ -37,9 +41,22 @@ module.exports = {
                 }
             }
 
-            message.reply(`🔄 Reloaded ${reloaded} commands, ${failed} failed`);
+            const embed = new EmbedBuilder()
+                .setTitle('🔄 Commands Reloaded')
+                .setColor('#2ecc71')
+                .addFields(
+                    { name: 'Successfully Reloaded', value: `${reloaded}`, inline: true },
+                    { name: 'Failed', value: `${failed}`, inline: true }
+                )
+                .setTimestamp();
+            
+            message.reply({ embeds: [embed] });
         } catch (error) {
-            message.reply(`❌ Reload failed: ${error.message}`);
+            const embed = new EmbedBuilder()
+                .setTitle('❌ Reload Failed')
+                .setDescription(`Error: ${error.message}`)
+                .setColor('#e74c3c');
+            message.reply({ embeds: [embed] });
         }
     }
 };

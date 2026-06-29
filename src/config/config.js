@@ -5,7 +5,7 @@ module.exports = {
     token: process.env.BOT_TOKEN,
     
     // Bot owner ID - only this user can run owner commands
-    ownerId: process.env.OWNER_ID,
+    ownerId: (process.env.OWNER_ID || '').trim(),
 
     // Primary guild/server ID
     guildId: process.env.GUILD_ID || '1252204883533103145',
