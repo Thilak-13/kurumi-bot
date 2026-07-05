@@ -83,6 +83,13 @@ class Database {
                 channel_id TEXT NOT NULL,
                 guild_id TEXT NOT NULL,
                 expires_at INTEGER NOT NULL
+            )`,
+            `CREATE TABLE IF NOT EXISTS guild_role_syncs (
+                id INTEGER PRIMARY KEY AUTOINCREMENT,
+                source_guild_id TEXT NOT NULL,
+                target_guild_id TEXT NOT NULL,
+                role_id TEXT NOT NULL,
+                UNIQUE(source_guild_id, target_guild_id, role_id)
             )`
         ];
 
@@ -492,6 +499,101 @@ class Database {
         } catch (error) {
             console.error('❌ Error updating autopurge checkpoint:', error.message);
             return false;
+        }
+    }
+
+    /**
+     * Get a specific role sync rule
+     */
+    getRoleSyncRule(sourceGuildId, targetGuildId, roleId) {
+        try {
+            const stmt = this.db.prepare(`
+                SELECT * FROM guild_role_syncs 
+                WHERE source_guild_id = ? AND target_guild_id = ? AND role_id = ?
+            `);
+            return stmt.get(sourceGuildId, targetGuildId, roleId);
+        } catch (error) {
+            console.error('❌ Error getting role sync rule:', error.message);
+            return null;
+        }
+    }
+
+    /**
+     * Add a role sync rule
+     */
+    addRoleSyncRule(sourceGuildId, targetGuildId, roleId) {
+        try {
+            const stmt = this.db.prepare(`
+                INSERT INTO guild_role_syncs (source_guild_id, target_guild_id, role_id)
+                VALUES (?, ?, ?)
+            `);
+            stmt.run(sourceGuildId, targetGuildId, roleId);
+            return true;
+        } catch (error) {
+            console.error('❌ Error adding role sync rule:', error.message);
+            return false;
+        }
+    }
+
+    /**
+     * Remove a role sync rule
+     */
+    removeRoleSyncRule(sourceGuildId, targetGuildId, roleId) {
+        try {
+            const stmt = this.db.prepare(`
+                DELETE FROM guild_role_syncs 
+                WHERE source_guild_id = ? AND target_guild_id = ? AND role_id = ?
+            `);
+            const result = stmt.run(sourceGuildId, targetGuildId, roleId);
+            return result.changes > 0;
+        } catch (error) {
+            console.error('❌ Error removing role sync rule:', error.message);
+            return false;
+        }
+    }
+
+    /**
+     * List all role sync rules
+     */
+    listAllRoleSyncRules() {
+        try {
+            const stmt = this.db.prepare(`
+                SELECT * FROM guild_role_syncs
+            `);
+            return stmt.all();
+        } catch (error) {
+            console.error('❌ Error listing all role sync rules:', error.message);
+            return [];
+        }
+    }
+
+    /**
+     * Get role sync rules by source guild ID
+     */
+    getRoleSyncRulesForSource(sourceGuildId) {
+        try {
+            const stmt = this.db.prepare(`
+                SELECT * FROM guild_role_syncs WHERE source_guild_id = ?
+            `);
+            return stmt.all(sourceGuildId);
+        } catch (error) {
+            console.error('❌ Error getting role sync rules for source:', error.message);
+            return [];
+        }
+    }
+
+    /**
+     * Get role sync rules by target guild ID
+     */
+    getRoleSyncRulesForTarget(targetGuildId) {
+        try {
+            const stmt = this.db.prepare(`
+                SELECT * FROM guild_role_syncs WHERE target_guild_id = ?
+            `);
+            return stmt.all(targetGuildId);
+        } catch (error) {
+            console.error('❌ Error getting role sync rules for target:', error.message);
+            return [];
         }
     }
 
