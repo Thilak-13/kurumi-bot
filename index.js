@@ -17,7 +17,12 @@ const client = new Client({
         GatewayIntentBits.GuildModeration,
         GatewayIntentBits.GuildPresences,
         GatewayIntentBits.MessageContent
-    ]
+    ],
+    rest: {
+        rejectOnRateLimit: (data) => {
+            return data.route.includes('/emojis') || data.route.includes('/stickers');
+        }
+    }
 });
 
 // Initialize command collection

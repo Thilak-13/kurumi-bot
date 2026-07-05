@@ -97,6 +97,14 @@ class EmojiLoopEngine {
                         console.log(`[Emoji Loop] Successfully refreshed emoji: ${originalName}`);
                     } catch (err) {
                         console.warn(`[Emoji Loop] Failed to refresh emoji ${originalName}:`, err.message);
+                        
+                        // Detect rate limit error
+                        if (err.name === 'RateLimitError' || err.retryAfter !== undefined || err.status === 429 || err.code === 429) {
+                            const retryAfter = err.retryAfter || 2400 * 1000; // default 40 minutes if missing
+                            const rateLimitError = new Error(`Rate limit hit (retry after ${Math.ceil(retryAfter / 60000)}m)`);
+                            rateLimitError.retryAfter = retryAfter;
+                            throw rateLimitError;
+                        }
                     }
                     this.progress[guildId].current++;
                     // Delay 3.5 seconds to respect rate limits
@@ -147,6 +155,14 @@ class EmojiLoopEngine {
                             console.log(`[Emoji Loop] Successfully refreshed sticker: ${originalName}`);
                         } catch (err) {
                             console.warn(`[Emoji Loop] Failed to refresh sticker ${originalName}:`, err.message);
+
+                            // Detect rate limit error
+                            if (err.name === 'RateLimitError' || err.retryAfter !== undefined || err.status === 429 || err.code === 429) {
+                                const retryAfter = err.retryAfter || 2400 * 1000;
+                                const rateLimitError = new Error(`Rate limit hit (retry after ${Math.ceil(retryAfter / 60000)}m)`);
+                                rateLimitError.retryAfter = retryAfter;
+                                throw rateLimitError;
+                            }
                         }
                         this.progress[guildId].current++;
                         // Delay 3.5 seconds to respect rate limits
@@ -167,9 +183,37 @@ class EmojiLoopEngine {
 
         } catch (error) {
             console.error(`[Emoji Loop] Error during execution cycle for guild ${guildId}:`, error);
+
+            if (error.message.includes('Rate limit hit')) {
+                const retryAfterMs = error.retryAfter || 2400 * 1000; // Default 40 minutes
+                const nextRun = Date.now() + retryAfterMs;
+
+                // Reschedule loop next_run in database
+                const currentConfig = db.getEmojiLoop(guildId);
+                if (currentConfig) {
+                    db.updateEmojiLoopRun(guildId, Date.now(), nextRun);
+                }
+
+                // Set status to rate-limited
+                this.progress[guildId] = {
+                    phase: 'rate-limited',
+                    error: error.message,
+                    retryAt: nextRun
+                };
+
+                // Retain status for 10 minutes, then clean up
+                setTimeout(() => {
+                    if (this.progress[guildId] && this.progress[guildId].phase === 'rate-limited') {
+                        delete this.progress[guildId];
+                    }
+                }, 10 * 60 * 1000);
+            }
         } finally {
             this.runningGuilds.delete(guildId);
-            delete this.progress[guildId];
+            // Don't delete progress if we are in rate-limited phase, as status command needs to display it
+            if (this.progress[guildId] && this.progress[guildId].phase !== 'rate-limited') {
+                delete this.progress[guildId];
+            }
         }
     }
 }

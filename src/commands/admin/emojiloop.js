@@ -97,11 +97,20 @@ module.exports = {
                 .setTimestamp();
 
             if (activeProgress) {
-                embed.addFields(
-                    { name: 'Server Name', value: `${interaction.guild.name}`, inline: true },
-                    { name: 'Current Action', value: '⏳ **REFRESH CYCLE IN PROGRESS**', inline: true },
-                    { name: 'Progress Status', value: `Refreshing **${activeProgress.phase}**: **${activeProgress.current} / ${activeProgress.total}** completed.` }
-                );
+                if (activeProgress.phase === 'rate-limited') {
+                    const retryTimeText = `<t:${Math.floor(activeProgress.retryAt / 1000)}:R>`;
+                    embed.addFields(
+                        { name: 'Server Name', value: `${interaction.guild.name}`, inline: true },
+                        { name: 'Current Action', value: '⚠️ **RATE LIMITED**', inline: true },
+                        { name: 'Details', value: `The bot hit Discord's emoji creation rate limit. The loop has been deferred and will resume **${retryTimeText}**.\n*Error: ${activeProgress.error}*` }
+                    );
+                } else {
+                    embed.addFields(
+                        { name: 'Server Name', value: `${interaction.guild.name}`, inline: true },
+                        { name: 'Current Action', value: '⏳ **REFRESH CYCLE IN PROGRESS**', inline: true },
+                        { name: 'Progress Status', value: `Refreshing **${activeProgress.phase}**: **${activeProgress.current} / ${activeProgress.total}** completed.` }
+                    );
+                }
             } else {
                 const lastRunText = config.last_run > 0 
                     ? `<t:${Math.floor(config.last_run / 1000)}:F> (<t:${Math.floor(config.last_run / 1000)}:R>)` 
