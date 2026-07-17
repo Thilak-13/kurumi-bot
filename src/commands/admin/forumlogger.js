@@ -1,4 +1,5 @@
 const { SlashCommandBuilder, PermissionFlagsBits, ChannelType, EmbedBuilder } = require('discord.js');
+const persona = require('../../lib/persona');
 
 module.exports = {
     data: new SlashCommandBuilder()
@@ -40,13 +41,13 @@ module.exports = {
 
     async execute(interaction) {
         if (!interaction.guild) {
-            return interaction.reply({ content: '❌ This command can only be used in a server.', flags: 64 });
+            return interaction.reply({ content: `❌ ${persona.serverOnly()}`, flags: 64 });
         }
         const subcommand = interaction.options.getSubcommand();
         const db = interaction.client.database;
 
         if (!db || !db.connected) {
-            return interaction.reply({ content: '❌ Database is not connected.', flags: 64 });
+            return interaction.reply({ content: '❌ Ara... my memory fails me — the database is not connected.', flags: 64 });
         }
 
         const guildId = interaction.guild.id;
@@ -67,8 +68,9 @@ module.exports = {
 
             const embed = new EmbedBuilder()
                 .setTitle('✅ Forum Logger Configured')
-                .setDescription(`Successfully configured the hybrid forum logger for this server!\n\n**Status:** 🟢 **ENABLED**\n**Mod Log Channel:** <#${modLogChannel.id}>\n**Forum Channel:** <#${forumChannel.id}>`)
-                .setColor('#2ecc71')
+                .setDescription(`There... every sinner shall have their own little diary now, and I shall keep them all ♡\n\n**Status:** 🟢 **ENABLED**\n**Mod Log Channel:** <#${modLogChannel.id}>\n**Forum Channel:** <#${forumChannel.id}>`)
+                .setColor(persona.colors.gold)
+                .setFooter({ text: persona.footer() })
                 .setTimestamp();
 
             return interaction.reply({ embeds: [embed] });
@@ -78,7 +80,7 @@ module.exports = {
             const enabled = interaction.options.getBoolean('enabled');
 
             if (!settings.forumLogger) {
-                return interaction.reply({ content: '❌ The forum logger has not been set up yet. Please use `/forumlogger setup` first.', flags: 64 });
+                return interaction.reply({ content: '❌ Ara...? There is nothing to toggle, my dear — set it up first with `/forumlogger setup`.', flags: 64 });
             }
 
             settings.forumLogger.enabled = enabled;
@@ -90,8 +92,9 @@ module.exports = {
 
             const embed = new EmbedBuilder()
                 .setTitle('⚙️ Forum Logger Updated')
-                .setDescription(`The hybrid forum logger has been **${statusLabel}** ${statusEmoji} in this server.`)
-                .setColor(enabled ? '#2ecc71' : '#e74c3c')
+                .setDescription(`The forum logger is now **${statusLabel}** ${statusEmoji}. ${enabled ? 'Ufufu... I shall resume my record-keeping.' : 'Very well... my pen rests. For now.'}`)
+                .setColor(enabled ? persona.colors.gold : persona.colors.blood)
+                .setFooter({ text: persona.footer() })
                 .setTimestamp();
 
             return interaction.reply({ embeds: [embed] });
@@ -103,8 +106,9 @@ module.exports = {
             if (!config) {
                 const embed = new EmbedBuilder()
                     .setTitle('⚙️ Forum Logger Status')
-                    .setDescription('The hybrid forum logger has **not been configured** on this server yet.\n\nUse `/forumlogger setup` to configure it.')
-                    .setColor('#e74c3c')
+                    .setDescription('No diaries are being kept here yet, my dear...\n\nUse `/forumlogger setup`, and I shall begin writing ♡')
+                    .setColor(persona.colors.blood)
+                    .setFooter({ text: persona.footer() })
                     .setTimestamp();
                 return interaction.reply({ embeds: [embed] });
             }
@@ -119,8 +123,8 @@ module.exports = {
                     { name: 'Mod Log Channel', value: `<#${config.modLogChannelId}>`, inline: true },
                     { name: 'Forum Log Channel', value: `<#${config.forumChannelId}>`, inline: true }
                 )
-                .setColor(config.enabled ? '#2ecc71' : '#e74c3c')
-                .setFooter({ text: `Last Updated: ${config.updatedAt || 'Unknown'}` })
+                .setColor(config.enabled ? persona.colors.gold : persona.colors.blood)
+                .setFooter({ text: `Last Updated: ${config.updatedAt || 'Unknown'} — ${persona.footer()}` })
                 .setTimestamp();
 
             return interaction.reply({ embeds: [embed] });

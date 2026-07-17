@@ -2,6 +2,7 @@ const { SlashCommandBuilder, AttachmentBuilder, EmbedBuilder, PermissionFlagsBit
 const AdmZip = require('adm-zip');
 const config = require('../../config/config');
 const { createErrorEmbed, createInfoEmbed, createSuccessEmbed } = require('../../lib/embeds');
+const persona = require('../../lib/persona');
 
 // Helper to download asset to Buffer and get native extension
 async function downloadAsset(url, stickerFormat = null) {
@@ -60,7 +61,7 @@ module.exports = {
         
         // Basic check for guild context
         if (!interactionOrMessage.guild) {
-            const embed = createErrorEmbed('Server-Only Command', 'This command can only be used in a server.');
+            const embed = createErrorEmbed('Server-Only Command', persona.serverOnly());
             return isInteraction 
                 ? interactionOrMessage.reply({ embeds: [embed], flags: 64 })
                 : interactionOrMessage.reply({ embeds: [embed] }).catch(() => {});
@@ -81,7 +82,7 @@ module.exports = {
 
         // Send a deferred or loading reply
         let processingMsg = null;
-        const initialEmbed = createInfoEmbed('Backup Started', '🔍 Fetching emojis and stickers from the server...');
+        const initialEmbed = createInfoEmbed('Backup Started', '🔍 Gathering every emoji and sticker in the server... each little face, preserved forever. Ufufu.');
         if (isInteraction) {
             await interactionOrMessage.reply({ embeds: [initialEmbed], flags: 64 });
             processingMsg = await interactionOrMessage.fetchReply();
@@ -107,7 +108,7 @@ module.exports = {
 
             const totalAssets = emojis.length + stickers.length;
             if (totalAssets === 0) {
-                const embed = createErrorEmbed('No Assets Found', 'There are no custom emojis or stickers to backup in this server.');
+                const embed = createErrorEmbed('No Assets Found', 'Ara...? This server keeps no custom emojis or stickers at all. There is nothing for me to preserve.');
                 if (isInteraction) {
                     return interactionOrMessage.editReply({ embeds: [embed] });
                 } else {

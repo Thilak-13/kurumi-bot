@@ -5,8 +5,9 @@ const {
     StringSelectMenuBuilder
 } = require('discord.js');
 const config = require('../../config/config');
+const persona = require('../../lib/persona');
 
-const ACCENT = config.bot.color || 0x5865F2;
+const ACCENT = config.bot.color || 0xB01E36;
 const PREFIX = config.bot.prefix || 'zz';
 
 // ── Category definitions ──────────────────────────────────────────────
@@ -174,9 +175,10 @@ const categories = [
 
 function buildOverviewEmbed() {
     const embed = new EmbedBuilder()
-        .setTitle('📖  Command Reference')
-        .setDescription('Select a category from the dropdown below to view its commands.\n\u200b')
+        .setTitle('🕰️  Kurumi\'s Command Repertoire')
+        .setDescription('Ara ara... come to see what I can do? How *curious* of you.\nChoose a category below, and I shall show you my tricks... one hand of the clock at a time ♡\n\u200b')
         .setColor(ACCENT)
+        .setFooter({ text: persona.footer() })
         .setTimestamp();
 
     for (const cat of categories) {
@@ -199,7 +201,9 @@ function buildOverviewEmbed() {
 function buildCategoryEmbed(cat) {
     const embed = new EmbedBuilder()
         .setTitle(`${cat.emoji}  ${cat.label} Commands`)
+        .setDescription('Ufufu... watch closely, my dear.\n​')
         .setColor(ACCENT)
+        .setFooter({ text: persona.footer() })
         .setTimestamp();
 
     for (const cmd of cat.commands) {
@@ -236,7 +240,7 @@ function buildSelectMenu() {
 
     const menu = new StringSelectMenuBuilder()
         .setCustomId('help_category_select')
-        .setPlaceholder('Select a category…')
+        .setPlaceholder('Choose, my dear... I am listening.')
         .addOptions(options);
 
     return new ActionRowBuilder().addComponents(menu);

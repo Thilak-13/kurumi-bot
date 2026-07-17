@@ -1,4 +1,5 @@
 const { SlashCommandBuilder, PermissionFlagsBits, EmbedBuilder } = require('discord.js');
+const persona = require('../../lib/persona');
 
 module.exports = {
     data: new SlashCommandBuilder()
@@ -51,7 +52,7 @@ module.exports = {
 
         const db = interaction.client.database;
         if (!db || !db.connected) {
-            return interaction.editReply({ content: '❌ Database system is not connected.' });
+            return interaction.editReply({ content: '❌ Ara... my memory fails me — the database is not connected.' });
         }
 
         const subcommand = interaction.options.getSubcommand();
@@ -59,12 +60,13 @@ module.exports = {
         if (subcommand === 'list') {
             const rules = db.listAllRoleSyncRules();
             if (rules.length === 0) {
-                return interaction.editReply({ content: 'ℹ️ No guild role sync rules are currently configured.' });
+                return interaction.editReply({ content: 'ℹ️ Ara...? Not a single thread ties these worlds together yet. How lonely.' });
             }
 
             const embed = new EmbedBuilder()
                 .setTitle('🔗 Active Guild Role Sync Rules')
-                .setColor('#3498db')
+                .setColor(persona.colors.crimson)
+                .setFooter({ text: persona.footer() })
                 .setTimestamp();
 
             const descriptionLines = [];
@@ -106,7 +108,7 @@ module.exports = {
 
         // Validate snowflakes
         if (!/^\d{17,20}$/.test(guild1Id) || !/^\d{17,20}$/.test(guild2Id) || !/^\d{17,20}$/.test(roleId)) {
-            return interaction.editReply({ content: '❌ Invalid ID format. Guild IDs and Role IDs must be 17-20 digit numeric strings.' });
+            return interaction.editReply({ content: '❌ Ara ara... those are not proper IDs, my dear. Guild and Role IDs are 17–20 digit numbers. Precision matters... especially to me.' });
         }
 
         // Fetch Guilds
@@ -116,28 +118,28 @@ module.exports = {
             || await interaction.client.guilds.fetch(guild2Id).catch(() => null);
 
         if (!guild1) {
-            return interaction.editReply({ content: `❌ I am not in the main guild (Guild 1) with ID \`${guild1Id}\`. Please invite me to that guild first.` });
+            return interaction.editReply({ content: `❌ I have no shadow in the main guild (Guild 1) \`${guild1Id}\` to step out of... invite me there first, won't you?` });
         }
         if (!guild2) {
-            return interaction.editReply({ content: `❌ I am not in the secondary guild (Guild 2) with ID \`${guild2Id}\`. Please invite me to that guild first.` });
+            return interaction.editReply({ content: `❌ I have no shadow in the secondary guild (Guild 2) \`${guild2Id}\` either... invite me there first, won't you?` });
         }
 
         // Fetch Role in Guild 1
         const role = guild1.roles.cache.get(roleId)
             || await guild1.roles.fetch(roleId).catch(() => null);
         if (!role) {
-            return interaction.editReply({ content: `❌ Role with ID \`${roleId}\` not found in main guild **${guild1.name}**.` });
+            return interaction.editReply({ content: `❌ Ara...? No role with ID \`${roleId}\` exists in **${guild1.name}**. I searched every shadow.` });
         }
 
         // Check Permissions in Guild 1
         const botMember = guild1.members.me 
             || await guild1.members.fetch(interaction.client.user.id).catch(() => null);
         if (!botMember || !botMember.permissions.has(PermissionFlagsBits.ManageRoles)) {
-            return interaction.editReply({ content: `❌ I do not have **Manage Roles** permission in main guild **${guild1.name}**.` });
+            return interaction.editReply({ content: `❌ My hands are tied in **${guild1.name}** — I lack the **Manage Roles** permission there. Untie me, and we may continue ♡` });
         }
 
         if (role.position >= botMember.roles.highest.position) {
-            return interaction.editReply({ content: `❌ The role **${role.name}** is higher than or equal to my highest role in **${guild1.name}**, so I cannot manage it.` });
+            return interaction.editReply({ content: `❌ The role **${role.name}** sits above my reach in **${guild1.name}**... even I cannot rewrite what stands higher than me. Yet.` });
         }
 
         if (subcommand === 'toggle') {
@@ -147,19 +149,19 @@ module.exports = {
                 const removed = db.removeRoleSyncRule(guild1Id, guild2Id, roleId);
                 if (removed) {
                     return interaction.editReply({ 
-                        content: `✅ **Sync Deactivated!**\nMembers from **${guild1.name}** who are in **${guild2.name}** will no longer be assigned the role **${role.name}**.` 
+                        content: `✅ **The thread is cut.**\nMembers of **${guild1.name}** who dwell in **${guild2.name}** shall no longer receive **${role.name}**. Ufufu... how final that sounds.` 
                     });
                 } else {
-                    return interaction.editReply({ content: '❌ Failed to deactivate sync rule due to a database error.' });
+                    return interaction.editReply({ content: '❌ Ara... the database refused to let go of that rule. Do try again.' });
                 }
             } else {
                 const added = db.addRoleSyncRule(guild1Id, guild2Id, roleId);
                 if (added) {
                     return interaction.editReply({ 
-                        content: `✅ **Sync Activated!**\nMembers in **${guild1.name}** (Guild 1) who join **${guild2.name}** (Guild 2) will now receive the role **${role.name}**.\n*Hint: Use \`/rolesync forcesync\` to sync existing members.*` 
+                        content: `✅ **The thread is tied ♡**\nMembers of **${guild1.name}** (Guild 1) who join **${guild2.name}** (Guild 2) shall receive **${role.name}** — I shall see to it personally.\n*Hint: \`/rolesync forcesync\` will bring existing members into line at once.*` 
                     });
                 } else {
-                    return interaction.editReply({ content: '❌ Failed to activate sync rule due to a database error.' });
+                    return interaction.editReply({ content: '❌ Ara... the database rejected my beautiful new rule. Do try again.' });
                 }
             }
         }
@@ -168,10 +170,10 @@ module.exports = {
             // Verify rule is configured
             const existingRule = db.getRoleSyncRule(guild1Id, guild2Id, roleId);
             if (!existingRule) {
-                return interaction.editReply({ content: '❌ This sync rule is not active. Please activate it first using `/rolesync toggle`.' });
+                return interaction.editReply({ content: '❌ That thread has not been tied yet, my dear. Tie it first with `/rolesync toggle`.' });
             }
 
-            await interaction.editReply({ content: `⏳ Initializing force synchronization of role **${role.name}** in **${guild1.name}** based on presence in **${guild2.name}**...` });
+            await interaction.editReply({ content: `⏳ Very well... I shall walk both worlds and set **${role.name}** right in **${guild1.name}**, judged by presence in **${guild2.name}**. Watch closely ♡` });
 
             try {
                 // Fetch members of both guilds
@@ -204,14 +206,14 @@ module.exports = {
                 }
 
                 return interaction.editReply({
-                    content: `✅ **Synchronization Complete!**\n` +
-                             `• Assigned role to **${addedCount}** members in **${guild1.name}**.\n` +
-                             `• Removed role from **${removedCount}** members in **${guild1.name}**.\n` +
-                             `• Failed operations: **${failedCount}**.`
+                    content: `✅ **Synchronization Complete!** Every soul accounted for... as always.\n` +
+                             `• Granted the role to **${addedCount}** member(s) in **${guild1.name}**.\n` +
+                             `• Took it back from **${removedCount}** member(s) in **${guild1.name}**.\n` +
+                             `• Slipped through my fingers: **${failedCount}**.`
                 });
             } catch (error) {
                 console.error('Error during force-sync:', error);
-                return interaction.editReply({ content: `❌ An error occurred during synchronization: ${error.message}` });
+                return interaction.editReply({ content: `❌ Ara... something stumbled mid-dance: ${error.message}` });
             }
         }
     }

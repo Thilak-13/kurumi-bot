@@ -1,6 +1,7 @@
 const { AttachmentBuilder, EmbedBuilder } = require('discord.js');
 const config = require('../../config/config');
 const { createErrorEmbed, createInfoEmbed, createSuccessEmbed } = require('../../lib/embeds');
+const persona = require('../../lib/persona');
 
 const DEFAULT_FORMAT = '%u (%i)';
 const DEFAULT_ORDER = 'name';
@@ -481,7 +482,7 @@ module.exports = {
 
     async execute(message, args) {
         if (!message.guild) {
-            const embed = createErrorEmbed('Server-Only Command', 'This command can only be used in a server.');
+            const embed = createErrorEmbed('Server-Only Command', persona.serverOnly());
             return message.reply({ embeds: [embed] }).catch(() => {});
         }
 
@@ -507,7 +508,7 @@ module.exports = {
         // Send initial processing indicator to avoid timeout perception
         let processingMsg = null;
         try {
-            const embed = createInfoEmbed('Processing Dump', 'Fetching members from server...');
+            const embed = createInfoEmbed('Processing Dump', 'One moment, my dear... I am leafing through every soul in this server. Ufufu.');
             processingMsg = await message.reply({ embeds: [embed] });
         } catch (e) {
             console.error('Failed to send processing message:', e);
@@ -546,7 +547,7 @@ module.exports = {
 
         if (unresolvedHasRoles.length || unresolvedHasAllRoles.length || unresolvedExceptRoles.length) {
             const badRole = unresolvedHasRoles[0] || unresolvedHasAllRoles[0] || unresolvedExceptRoles[0];
-            const embed = createErrorEmbed('Role Not Found', `Could not find role: **${badRole}**`);
+            const embed = createErrorEmbed('Role Not Found', `Ara...? No role named **${badRole}** exists here. I looked twice.`);
             return message.reply({ embeds: [embed] }).catch(() => {});
         }
 
@@ -606,7 +607,7 @@ module.exports = {
             if (processingMsg) {
                 try { await processingMsg.delete().catch(() => {}); } catch (e) {}
             }
-            const embed = createInfoEmbed('No Members Found', 'No members matched your filter criteria.');
+            const embed = createInfoEmbed('No Members Found', 'Not a single soul matched your criteria... how disappointing. Cast a wider net, won\'t you?');
             return message.reply({ embeds: [embed] }).catch(() => {});
         }
 
@@ -636,7 +637,7 @@ module.exports = {
         const rawChoice = collected?.first()?.content?.trim()?.toLowerCase();
         if (!rawChoice) {
             if (processingMsg) {
-                const embed = createInfoEmbed('Dump Cancelled', 'No output format was selected in time.');
+                const embed = createInfoEmbed('Dump Cancelled', 'You never chose a format, my dear... so I have put my ledger away. Time waits for no one — except me.');
                 try { await processingMsg.edit({ embeds: [embed], content: '' }).catch(() => {}); } catch (e) {}
             }
             return;
@@ -651,7 +652,7 @@ module.exports = {
 
         if (!outputChoice) {
             if (processingMsg) {
-                const embed = createErrorEmbed('Invalid Choice', 'Please use one of: `message`, `text`, or `csv`');
+                const embed = createErrorEmbed('Invalid Choice', 'Ara ara... that is not on the menu. Choose one of: `message`, `text`, or `csv`.');
                 try { await processingMsg.edit({ embeds: [embed], content: '' }).catch(() => {}); } catch (e) {}
             }
             return;

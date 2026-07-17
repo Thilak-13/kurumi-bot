@@ -9,16 +9,16 @@ module.exports = {
         console.log(`📋 ${client.commands.size} commands loaded`);
         console.log(`🔧 Prefix: ${config.bot.prefix}`);
 
-        // Set bot presence  
+        // Set bot presence
         try {
             await client.user.setPresence({
-                activities: [{ 
-                    name: 'Date A Live', 
+                activities: [{
+                    name: 'your time tick away ♡',
                     type: ActivityType.Watching
                 }],
                 status: 'online'
             });
-            console.log(`🟢 Status set to online - Watching Date A Live\n`);
+            console.log(`🟢 Status set to online - Watching your time tick away ♡\n`);
         } catch (error) {
             console.error('Failed to set presence:', error.message);
         }

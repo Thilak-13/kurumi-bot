@@ -2,6 +2,7 @@ const { SlashCommandBuilder, AttachmentBuilder, EmbedBuilder, PermissionFlagsBit
 const AdmZip = require('adm-zip');
 const config = require('../../config/config');
 const { createErrorEmbed, createInfoEmbed, createSuccessEmbed } = require('../../lib/embeds');
+const persona = require('../../lib/persona');
 
 // Helper to download asset to Buffer and get filename info
 async function downloadAsset(url, originalFilename) {
@@ -56,7 +57,7 @@ module.exports = {
         
         // Basic check for guild context
         if (!interactionOrMessage.guild) {
-            const embed = createErrorEmbed('Server-Only Command', 'This command can only be used in a server.');
+            const embed = createErrorEmbed('Server-Only Command', persona.serverOnly());
             return isInteraction 
                 ? interactionOrMessage.reply({ embeds: [embed], flags: 64 })
                 : interactionOrMessage.reply({ embeds: [embed] }).catch(() => {});
@@ -95,7 +96,7 @@ module.exports = {
 
         // Check if target channel is text-based
         if (!targetChannel.isTextBased()) {
-            const embed = createErrorEmbed('Invalid Channel', 'Please select a text-based channel.');
+            const embed = createErrorEmbed('Invalid Channel', 'Ara... I can only read text channels, my dear. Choose one of those.');
             return isInteraction 
                 ? interactionOrMessage.reply({ embeds: [embed], flags: 64 })
                 : interactionOrMessage.reply({ embeds: [embed] }).catch(() => {});
@@ -103,7 +104,7 @@ module.exports = {
 
         // Send a deferred or loading reply
         let processingMsg = null;
-        const initialEmbed = createInfoEmbed('Backup Started', `🔍 Scanning history of <#${targetChannel.id}>...`);
+        const initialEmbed = createInfoEmbed('Backup Started', `🔍 Peering back through time in <#${targetChannel.id}>... every attachment shall be accounted for. Kihihi.`);
         if (isInteraction) {
             await interactionOrMessage.reply({ embeds: [initialEmbed], flags: 64 });
             processingMsg = await interactionOrMessage.fetchReply();
@@ -164,7 +165,7 @@ module.exports = {
             }
 
             if (attachmentsList.length === 0) {
-                const embed = createErrorEmbed('No Attachments Found', `There are no attachments to backup in <#${targetChannel.id}>.`);
+                const embed = createErrorEmbed('No Attachments Found', `Ara...? <#${targetChannel.id}> holds no attachments at all. Its history is bare.`);
                 if (isInteraction) {
                     return await interactionOrMessage.editReply({ embeds: [embed] });
                 } else if (processingMsg) {
@@ -255,7 +256,7 @@ module.exports = {
             }
 
             if (zips.length === 0) {
-                const embed = createErrorEmbed('Backup Failed', 'No attachments could be successfully downloaded.');
+                const embed = createErrorEmbed('Backup Failed', 'How vexing... not a single attachment would come with me. Their links may have expired beyond even my reach.');
                 if (isInteraction) {
                     return await interactionOrMessage.editReply({ embeds: [embed] });
                 } else if (processingMsg) {

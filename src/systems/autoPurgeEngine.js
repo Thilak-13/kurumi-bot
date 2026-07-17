@@ -247,8 +247,8 @@ class AutoPurgeEngine {
                     if (logChannel && logChannel.isTextBased()) {
                         const embed = new EmbedBuilder()
                             .setTitle('🗑️ Autopurge Recovery')
-                            .setDescription(`Cleaned **${count}** expired message(s) in <#${channelId}> during startup recovery.\n**Filters applied:** ${filterList}`)
-                            .setColor(appConfig.bot?.color || 0x5865F2)
+                            .setDescription(`Ara ara... I was away, but the clock kept count. **${count}** expired message(s) in <#${channelId}> have been collected on my return ♡\n**Filters applied:** ${filterList}`)
+                            .setColor(appConfig.bot?.color || 0xB01E36)
                             .setTimestamp();
 
                         await logChannel.send({ embeds: [embed] }).catch(() => {});
@@ -259,7 +259,7 @@ class AutoPurgeEngine {
                 if (!logged && this.client.logger) {
                     await this.client.logger.logEvent(
                         '🗑️ Autopurge Recovery',
-                        `Cleaned **${count}** expired message(s) in <#${channelId}> during startup recovery.\n**Filters applied:** ${filterList}`,
+                        `Ara ara... I was away, but the clock kept count. **${count}** expired message(s) in <#${channelId}> have been collected on my return ♡\n**Filters applied:** ${filterList}`,
                         'info'
                     ).catch(() => {});
                 }

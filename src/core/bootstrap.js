@@ -41,7 +41,7 @@ async function start() {
 
     installShutdownHandlers(client, tasks);
 
-    console.log('🤖 Private Moderation Bot v' + config.bot.version);
+    console.log(`🕰️ ${config.bot.name} v${config.bot.version} — "Ara ara... shall we begin?"`);
 
     // Validate configuration
     if (!config.token) {

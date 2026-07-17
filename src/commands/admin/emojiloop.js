@@ -1,4 +1,5 @@
 const { SlashCommandBuilder, PermissionFlagsBits, EmbedBuilder } = require('discord.js');
+const persona = require('../../lib/persona');
 
 module.exports = {
     data: new SlashCommandBuilder()
@@ -28,12 +29,12 @@ module.exports = {
 
     async execute(interaction) {
         if (!interaction.guild) {
-            return interaction.reply({ content: '❌ This command can only be used in a server.', flags: 64 });
+            return interaction.reply({ content: `❌ ${persona.serverOnly()}`, flags: 64 });
         }
 
         const db = interaction.client.database;
         if (!db || !db.connected) {
-            return interaction.reply({ content: '❌ Database system is not connected.', flags: 64 });
+            return interaction.reply({ content: '❌ Ara... my memory fails me — the database is not connected. Do wake it before asking favors of me.', flags: 64 });
         }
 
         const subcommand = interaction.options.getSubcommand();
@@ -53,10 +54,10 @@ module.exports = {
                     engine.runCycle(interaction.guildId).catch(console.error);
                 }
                 return interaction.editReply({
-                    content: `✅ **Continuous Loop Started!**\nThe bot is now refreshing **1 sticker/emoji every 90 seconds** in a continuous circular loop (prioritizing stickers first).\n*Check current queue progress with \`/emojiloop status\`.*`
+                    content: `✅ **The clock is wound ♡**\nI shall polish **one sticker or emoji every 90 seconds**, round and round, stickers first — like clockwork, naturally.\n*Peek at my progress with \`/emojiloop status\`... if you can keep up. Kihihi.*`
                 });
             } else {
-                return interaction.editReply({ content: '❌ Failed to start loop due to a database error.' });
+                return interaction.editReply({ content: '❌ Ara... the gears jammed — a database error stopped me from starting the loop.' });
             }
         }
 
@@ -65,16 +66,16 @@ module.exports = {
             
             const existingLoop = db.getEmojiLoop(interaction.guildId);
             if (!existingLoop) {
-                return interaction.editReply({ content: 'ℹ️ The emoji loop is not currently active on this server.' });
+                return interaction.editReply({ content: 'ℹ️ Ara...? There is no loop to stop, my dear. The clock was never wound.' });
             }
 
             const deleted = db.deleteEmojiLoop(interaction.guildId);
             if (deleted) {
                 return interaction.editReply({
-                    content: '✅ **Loop Stopped!**\nContinuous emoji and sticker cache refreshes have been turned off.'
+                    content: '✅ **The hands have stopped.**\nVery well... the emojis and stickers may rest. I do so hate idle hands, but as you wish.'
                 });
             } else {
-                return interaction.editReply({ content: '❌ Failed to stop loop due to a database error.' });
+                return interaction.editReply({ content: '❌ How stubborn... a database error kept the loop turning. Do try again.' });
             }
         }
 
@@ -82,7 +83,7 @@ module.exports = {
             const config = db.getEmojiLoop(interaction.guildId);
             if (!config) {
                 return interaction.reply({
-                    content: 'ℹ️ **Not Configured**\nNo continuous emoji loop is active for this server. Use `/emojiloop start` to activate it.',
+                    content: 'ℹ️ **Not Configured**\nNo loop ticks in this server yet, my dear. Wind it with `/emojiloop start`... and I shall take care of the rest ♡',
                     flags: 64
                 });
             }
@@ -99,7 +100,9 @@ module.exports = {
 
             const embed = new EmbedBuilder()
                 .setTitle('✨ Continuous Emoji & Sticker Refresh Loop')
-                .setColor('#9b59b6')
+                .setDescription('Ufufu... my little carousel of expressions, turning ever so precisely.')
+                .setColor(persona.colors.crimson)
+                .setFooter({ text: persona.footer() })
                 .setTimestamp();
 
             const nextRunText = config.status === 'active' 
@@ -138,11 +141,11 @@ module.exports = {
         if (subcommand === 'runnow') {
             await interaction.deferReply({ flags: 64 });
             if (!engine) {
-                return interaction.editReply({ content: '❌ Emoji Loop Engine is not running.' });
+                return interaction.editReply({ content: '❌ Ara... the engine itself is asleep. I cannot turn hands that do not exist.' });
             }
 
             if (engine.runningGuilds.has(interaction.guildId)) {
-                return interaction.editReply({ content: '⚠️ The engine is currently processing an item. Please wait a moment.' });
+                return interaction.editReply({ content: '⚠️ Patience, my dear... I am mid-turn already. One does not rush a lady at her work.' });
             }
 
             // Trigger a single step immediately in the background
@@ -150,7 +153,7 @@ module.exports = {
                 console.error(`Error executing manual background emoji loop step:`, err);
             });
 
-            return interaction.editReply({ content: '✅ **Step Triggered!** The bot is processing the next queued emoji/sticker in the background right now. Use `/emojiloop status` to see details.' });
+            return interaction.editReply({ content: '✅ **As you wish ♡** The next emoji or sticker is being attended to this very second. Use `/emojiloop status` to watch me work.' });
         }
     }
 };

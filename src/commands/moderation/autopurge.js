@@ -13,6 +13,7 @@ const {
     TextInputStyle 
 } = require('discord.js');
 const config = require('../../config/config');
+const persona = require('../../lib/persona');
 
 module.exports = {
     data: new SlashCommandBuilder()
@@ -70,13 +71,13 @@ module.exports = {
 
     async execute(interaction) {
         if (!interaction.guild) {
-            return interaction.reply({ content: '❌ This command can only be used in a server.', flags: 64 });
+            return interaction.reply({ content: `❌ ${persona.serverOnly()}`, flags: 64 });
         }
         const subcommand = interaction.options.getSubcommand();
         const db = interaction.client.database;
 
         if (!db || !db.connected) {
-            return interaction.reply({ content: '❌ Database is not connected.', flags: 64 });
+            return interaction.reply({ content: '❌ Ara... my memory fails me — the database is not connected.', flags: 64 });
         }
 
         if (subcommand === 'setup') {
@@ -104,8 +105,8 @@ module.exports = {
         const updateMessage = async (targetInteraction) => {
             const embed = new EmbedBuilder()
                 .setTitle('⚙️ Autopurge Setup Dashboard')
-                .setDescription('Configure automatic message purging. Messages matching selected filters will be deleted periodically.')
-                .setColor(config.bot.color || 0x5865F2)
+                .setDescription('Ara ara... setting the table for a standing feast? Choose what I devour, where, and how often — and I shall keep those channels *spotless* ♡')
+                .setColor(config.bot.color || 0xB01E36)
                 .addFields(
                     {
                         name: '📢 Target Channels',
@@ -136,7 +137,7 @@ module.exports = {
                         inline: true
                     }
                 )
-                .setFooter({ text: 'Interaction times out in 5 minutes' })
+                .setFooter({ text: 'You have five minutes to decide... I am counting. Kihihi.' })
                 .setTimestamp();
 
             // Row 1: Channels select menu
@@ -285,7 +286,7 @@ module.exports = {
                         const rawMins = modalSubmit.fields.getTextInputValue('custom_mins');
                         const mins = parseInt(rawMins, 10);
                         if (isNaN(mins) || mins <= 0) {
-                            await modalSubmit.reply({ content: '❌ Invalid input! Please enter a positive number of minutes.', flags: 64 });
+                            await modalSubmit.reply({ content: '❌ Ara... that is not a proper number of minutes, my dear. A positive one, if you please.', flags: 64 });
                         } else {
                             selectedIntervalMinutes = mins;
                             intervalLabel = `${mins} Minute(s)`;
@@ -324,8 +325,9 @@ module.exports = {
                 const logChannelText = selectedLogChannelId ? `<#${selectedLogChannelId}>` : 'Default Log';
                 const successEmbed = new EmbedBuilder()
                     .setTitle('✅ Autopurge Saved')
-                    .setDescription(`Successfully enabled autopurge for:\n${selectedChannelIds.map(id => `<#${id}>`).join('\n')}\n\n**Interval:** Every ${intervalLabel}\n**Filters:** ${selectedFilters.length > 0 ? selectedFilters.join(', ') : 'None (Purge all)'}\n**Log Channel:** ${logChannelText}`)
-                    .setColor('#2ecc71')
+                    .setDescription(`The arrangement is made ♡ I shall dine on schedule in:\n${selectedChannelIds.map(id => `<#${id}>`).join('\n')}\n\n**Interval:** Every ${intervalLabel}\n**Filters:** ${selectedFilters.length > 0 ? selectedFilters.join(', ') : 'None (Purge all)'}\n**Log Channel:** ${logChannelText}`)
+                    .setColor(persona.colors.gold)
+                    .setFooter({ text: persona.footer() })
                     .setTimestamp();
 
                 await i.update({ embeds: [successEmbed], components: [] });
@@ -335,8 +337,9 @@ module.exports = {
                 
                 const cancelEmbed = new EmbedBuilder()
                     .setTitle('❌ Setup Cancelled')
-                    .setDescription('Autopurge setup has been cancelled.')
-                    .setColor('#e74c3c')
+                    .setDescription('Changed your mind, did you? Ufufu... very well. The table is cleared, nothing was arranged.')
+                    .setColor(persona.colors.blood)
+                    .setFooter({ text: persona.footer() })
                     .setTimestamp();
 
                 await i.update({ embeds: [cancelEmbed], components: [] });
@@ -347,8 +350,9 @@ module.exports = {
             if (reason === 'time') {
                 const timeoutEmbed = new EmbedBuilder()
                     .setTitle('❌ Setup Timed Out')
-                    .setDescription('Autopurge setup timed out due to inactivity.')
-                    .setColor('#e74c3c')
+                    .setDescription('Five minutes of silence... you kept a lady waiting, so I have put everything away. How terribly rude, my dear.')
+                    .setColor(persona.colors.blood)
+                    .setFooter({ text: persona.footer() })
                     .setTimestamp();
                 await interaction.editReply({ embeds: [timeoutEmbed], components: [] }).catch(() => {});
             }
@@ -361,16 +365,18 @@ module.exports = {
 
         if (configs.length === 0) {
             const embed = new EmbedBuilder()
-                .setTitle('ℹ️ Autopurge Configurations')
-                .setDescription('There are no autopurge configurations active in this server.')
-                .setColor(config.bot.color || 0x5865F2)
+                .setTitle('🕰️ Autopurge Configurations')
+                .setDescription('Ara...? No standing arrangements here — I dine in this server only when invited.')
+                .setColor(config.bot.color || 0xB01E36)
+                .setFooter({ text: persona.footer() })
                 .setTimestamp();
             return interaction.reply({ embeds: [embed] });
         }
 
         const embed = new EmbedBuilder()
             .setTitle('📋 Autopurge Channels')
-            .setColor(config.bot.color || 0x5865F2)
+            .setColor(config.bot.color || 0xB01E36)
+            .setFooter({ text: persona.footer() })
             .setTimestamp();
 
         const desc = configs.map((c, index) => {
@@ -395,11 +401,11 @@ module.exports = {
 
         const current = db.getAutoPurgeConfig(interaction.guild.id, channel.id);
         if (!current) {
-            return interaction.reply({ content: `❌ No autopurge configuration found for <#${channel.id}>.`, flags: 64 });
+            return interaction.reply({ content: `❌ Ara...? I have no arrangement with <#${channel.id}>. There is nothing there to touch.`, flags: 64 });
         }
 
         if (current.status === 'paused') {
-            return interaction.reply({ content: `ℹ️ Autopurge is already paused in <#${channel.id}>.`, flags: 64 });
+            return interaction.reply({ content: `ℹ️ The clock in <#${channel.id}> is already stopped, my dear.`, flags: 64 });
         }
 
         db.updateAutoPurgeStatus(interaction.guild.id, channel.id, 'paused');
@@ -407,8 +413,9 @@ module.exports = {
         
         const embed = new EmbedBuilder()
             .setTitle('⏸️ Autopurge Paused')
-            .setDescription(`Autopurge has been paused for <#${channel.id}>.`)
-            .setColor('#f39c12')
+            .setDescription(`Very well... I have stopped the clock in <#${channel.id}>. Its messages may breathe — for now.`)
+            .setColor(persona.colors.amber)
+            .setFooter({ text: persona.footer() })
             .setTimestamp();
 
         return interaction.reply({ embeds: [embed] });
@@ -420,11 +427,11 @@ module.exports = {
 
         const current = db.getAutoPurgeConfig(interaction.guild.id, channel.id);
         if (!current) {
-            return interaction.reply({ content: `❌ No autopurge configuration found for <#${channel.id}>.`, flags: 64 });
+            return interaction.reply({ content: `❌ Ara...? I have no arrangement with <#${channel.id}>. There is nothing there to touch.`, flags: 64 });
         }
 
         if (current.status === 'active') {
-            return interaction.reply({ content: `ℹ️ Autopurge is already active in <#${channel.id}>.`, flags: 64 });
+            return interaction.reply({ content: `ℹ️ The clock in <#${channel.id}> is already ticking, my dear.`, flags: 64 });
         }
 
         // Resume status
@@ -433,8 +440,9 @@ module.exports = {
 
         const embed = new EmbedBuilder()
             .setTitle('▶️ Autopurge Resumed')
-            .setDescription(`Autopurge has been resumed for <#${channel.id}>.\nNew messages will now be tracked and auto-deleted.`)
-            .setColor('#2ecc71')
+            .setDescription(`The clock in <#${channel.id}> ticks once more ♡\nNew messages shall be watched... and collected, right on schedule.`)
+            .setColor(persona.colors.gold)
+            .setFooter({ text: persona.footer() })
             .setTimestamp();
 
         return interaction.reply({ embeds: [embed] });
@@ -446,7 +454,7 @@ module.exports = {
 
         const current = db.getAutoPurgeConfig(interaction.guild.id, channel.id);
         if (!current) {
-            return interaction.reply({ content: `❌ No autopurge configuration found for <#${channel.id}>.`, flags: 64 });
+            return interaction.reply({ content: `❌ Ara...? I have no arrangement with <#${channel.id}>. There is nothing there to touch.`, flags: 64 });
         }
 
         db.deleteAutoPurgeConfig(interaction.guild.id, channel.id);
@@ -455,8 +463,9 @@ module.exports = {
 
         const embed = new EmbedBuilder()
             .setTitle('🗑️ Autopurge Config Removed')
-            .setDescription(`Autopurge configuration for <#${channel.id}> has been deleted.`)
-            .setColor('#e74c3c')
+            .setDescription(`The arrangement with <#${channel.id}> is ended. I shall dine there no longer... a pity. Ufufu.`)
+            .setColor(persona.colors.blood)
+            .setFooter({ text: persona.footer() })
             .setTimestamp();
 
         return interaction.reply({ embeds: [embed] });
@@ -468,17 +477,17 @@ module.exports = {
 
         if (configs.length === 0) {
             return interaction.reply({ 
-                content: '❌ There are no active autopurge configurations in this server to remove.', 
+                content: '❌ Ara...? There is nothing to sweep away — no autopurge arrangements exist in this server.', 
                 flags: 64 
             });
         }
 
         // Create confirmation prompt with buttons
         const confirmEmbed = new EmbedBuilder()
-            .setTitle('⚠️ REMOVE ALL AUTOPURGE CONFIGURATIONS')
-            .setDescription(`You are about to delete **all ${configs.length}** autopurge configurations in this server!\n\nThis action **cannot be undone** and will stop all automatic purging.\n\nAre you sure you want to proceed?`)
-            .setColor('#e74c3c')
-            .setFooter({ text: 'This action will time out in 30 seconds' })
+            .setTitle('⚠️ Remove ALL Autopurge Configurations')
+            .setDescription(`You would tear up **all ${configs.length}** of my standing arrangements in this server at once...\n\nThere is no rewinding this, my dear — every automatic purge will stop.\n\nAre you quite certain?`)
+            .setColor(persona.colors.blood)
+            .setFooter({ text: 'Thirty seconds to decide... tick, tock.' })
             .setTimestamp();
 
         const confirmBtn = new ButtonBuilder()
@@ -517,8 +526,9 @@ module.exports = {
 
                 const successEmbed = new EmbedBuilder()
                     .setTitle('🗑️ All Autopurge Configs Removed')
-                    .setDescription(`Successfully removed **${deletedConfigsCount}** autopurge configuration(s) and cleared all tracked message records for this server.`)
-                    .setColor('#2ecc71')
+                    .setDescription(`So be it. **${deletedConfigsCount}** arrangement(s) torn up, every tracked message forgotten. The table is bare... how quiet it will be. Ufufu.`)
+                    .setColor(persona.colors.gold)
+                    .setFooter({ text: persona.footer() })
                     .setTimestamp();
 
                 await i.update({ embeds: [successEmbed], components: [] });
@@ -527,8 +537,9 @@ module.exports = {
 
                 const cancelEmbed = new EmbedBuilder()
                     .setTitle('❌ Action Cancelled')
-                    .setDescription('Removal of all autopurge configurations has been cancelled.')
-                    .setColor('#95a5a6')
+                    .setDescription('Ara... cold feet? The arrangements stay exactly as they were. Wise, perhaps.')
+                    .setColor(persona.colors.shadow)
+                    .setFooter({ text: persona.footer() })
                     .setTimestamp();
 
                 await i.update({ embeds: [cancelEmbed], components: [] });
@@ -539,8 +550,9 @@ module.exports = {
             if (reason === 'time') {
                 const timeoutEmbed = new EmbedBuilder()
                     .setTitle('❌ Action Timed Out')
-                    .setDescription('The prompt timed out due to inactivity.')
-                    .setColor('#e74c3c')
+                    .setDescription('Thirty seconds came and went without a word... so nothing was touched. Do be more decisive next time, my dear.')
+                    .setColor(persona.colors.blood)
+                    .setFooter({ text: persona.footer() })
                     .setTimestamp();
                 await interaction.editReply({ embeds: [timeoutEmbed], components: [] }).catch(() => {});
             }

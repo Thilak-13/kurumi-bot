@@ -1,29 +1,7 @@
 const config = require('../../config/config');
 const { EmbedBuilder } = require('discord.js');
-
-// Helper function to create error embeds
-function createErrorEmbed(title, description) {
-    return new EmbedBuilder()
-        .setTitle(`❌ ${title}`)
-        .setDescription(description)
-        .setColor('#e74c3c');
-}
-
-// Helper function to create success embeds
-function createSuccessEmbed(title, description) {
-    return new EmbedBuilder()
-        .setTitle(`✅ ${title}`)
-        .setDescription(description)
-        .setColor('#2ecc71');
-}
-
-// Helper function to create info embeds
-function createInfoEmbed(title, description) {
-    return new EmbedBuilder()
-        .setTitle(`ℹ️ ${title}`)
-        .setDescription(description)
-        .setColor('#3498db');
-}
+const { createErrorEmbed, createInfoEmbed, createSuccessEmbed } = require('../../lib/embeds');
+const persona = require('../../lib/persona');
 
 function joinRest(tokens, startIndex) {
     return tokens.slice(startIndex).join(' ').trim();
@@ -103,9 +81,10 @@ function buildAllAccessReport(access, guild, commandNames) {
 
 function createHelpEmbed(prefix) {
     return new EmbedBuilder()
-        .setTitle('ℹ️ Access Command Help')
+        .setTitle('🕰️ Access Command Help')
         .setDescription(buildHelp(prefix))
-        .setColor('#3498db');
+        .setColor(persona.colors.crimson)
+        .setFooter({ text: persona.footer() });
 }
 
 async function sendReport(message, report, title) {
@@ -121,7 +100,7 @@ async function sendReport(message, report, title) {
 
     const embed = createInfoEmbed(
         title,
-        'The report is too long to display in chat, so I attached it as a text file.'
+        'My, what a long ledger... too long for chat, so I have folded it into the little file below.'
     );
 
     return message.reply({
@@ -161,18 +140,18 @@ module.exports = {
 
     async execute(message, args) {
         if (!message.guild) {
-            const embed = createErrorEmbed('Server-Only Command', 'This command can only be used in a server.');
+            const embed = createErrorEmbed('Server-Only Command', persona.serverOnly());
             return message.reply({ embeds: [embed] }).catch(() => {});
         }
 
         if (message.author.id !== config.ownerId) {
-            const embed = createErrorEmbed('Owner-Only Command', 'This command is restricted to the bot owner.');
+            const embed = createErrorEmbed('Owner-Only Command', 'Ara ara... this lever moves the whole clock, my dear. Only *my* master may pull it.');
             return message.reply({ embeds: [embed] }).catch(() => {});
         }
 
         const access = message.client.accessControl;
         if (!access) {
-            const embed = createErrorEmbed('System Error', 'Access control system is not initialized.');
+            const embed = createErrorEmbed('System Error', 'How odd... my ledger of permissions is missing. I cannot work like this.');
             return message.reply({ embeds: [embed] }).catch(() => {});
         }
 
@@ -200,7 +179,7 @@ module.exports = {
 
         if (action === 'backup') {
             access.save();
-            const embed = createSuccessEmbed('Registry Saved', 'Access registry has been saved and backup refreshed.');
+            const embed = createSuccessEmbed('Registry Saved', 'Ufufu... every name in my ledger, copied twice and tucked safely away.');
             return message.reply({ embeds: [embed] }).catch(() => {});
         }
 

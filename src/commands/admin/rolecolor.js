@@ -85,13 +85,13 @@ module.exports = {
             if (resolvedStyle === 'solid') {
                 if (!color1Hex) {
                     return await interaction.editReply({
-                        content: '❌ Style `solid` requires `color1`'
+                        content: '❌ Ara... a `solid` dress needs its `color1`, my dear.'
                     });
                 }
 
                 if (color2Hex) {
                     return await interaction.editReply({
-                        content: '❌ Style `solid` only uses `color1`. Remove `color2`.'
+                        content: '❌ `solid` wears only one color. Do remove `color2`... simplicity has its own elegance.'
                     });
                 }
 
@@ -108,13 +108,13 @@ module.exports = {
                     tertiaryColor: null
                 };
 
-                responseLines.push('🎨 **Solid Applied!**');
+                responseLines.push('🎨 **Solid applied... a single, committed shade. How decisive ♡**');
                 responseLines.push(`Role: ${targetRole}`);
                 responseLines.push(`Color: \`${primaryColor}\``);
             } else if (resolvedStyle === 'gradient') {
                 if (!color1Hex || !color2Hex) {
                     return await interaction.editReply({
-                        content: '❌ Style `gradient` requires both `color1` and `color2`'
+                        content: '❌ A `gradient` is a dance of two colors — I shall need both `color1` and `color2`.'
                     });
                 }
 
@@ -138,27 +138,27 @@ module.exports = {
                     secondaryColor
                 };
 
-                responseLines.push('🌈 **Gradient Applied!**');
+                responseLines.push('🌈 **Gradient applied... two colors, entwined. Ufufu.**');
                 responseLines.push(`Role: ${targetRole}`);
                 responseLines.push(`Colors: \`${primaryColor}\` → \`${secondaryColor}\``);
             } else if (resolvedStyle === 'holographic') {
                 if (color1Hex || color2Hex) {
                     return await interaction.editReply({
-                        content: '❌ Style `holographic` uses fixed default colors. Do not provide color1 or color2.'
+                        content: '❌ `holographic` chooses its own colors, my dear — Discord insists. Leave color1 and color2 out of it.'
                     });
                 }
 
                 payloadColors = { ...HOLOGRAPHIC_COLORS };
-                responseLines.push('✨ **Holographic Applied!**');
+                responseLines.push('✨ **Holographic applied... shimmering like a spirit between worlds ♡**');
                 responseLines.push(`Role: ${targetRole}`);
                 responseLines.push('Colors are fixed by Discord default holographic style.');
             } else if (color2Hex && !color1Hex) {
                 return await interaction.editReply({
-                    content: '❌ `color2` cannot be used without `color1`'
+                    content: '❌ Ara... `color2` without `color1`? One does not begin a dance with the second step.'
                 });
             } else if (!emoji) {
                 return await interaction.editReply({
-                    content: '❌ Provide a style, colors, or an emoji.'
+                    content: '❌ You have given me nothing to work with, my dear. A style, colors, or an emoji — choose.'
                 });
             }
 
@@ -169,32 +169,32 @@ module.exports = {
 
             if (colorRole.id === interaction.guild.id) {
                 return await interaction.editReply({
-                    content: '❌ The @everyone role cannot be recolored'
+                    content: '❌ Even I cannot dress @everyone at once, my dear. That role is untouchable.'
                 });
             }
 
             if (colorRole.managed) {
                 return await interaction.editReply({
-                    content: '❌ Managed roles cannot be edited'
+                    content: '❌ That role belongs to another power — managed roles are beyond even my hands.'
                 });
             }
 
             if (colorRole.position >= botMember.roles.highest.position) {
                 return await interaction.editReply({
-                    content: '❌ Cannot modify this role because it is at or above my highest role'
+                    content: '❌ That role sits above my reach in the hierarchy... I cannot touch what stands higher than me. Yet.'
                 });
             }
 
             if (interaction.member.id !== interaction.guild.ownerId && colorRole.position >= member.roles.highest.position) {
                 return await interaction.editReply({
-                    content: '❌ You can only recolor roles that are below your highest role'
+                    content: '❌ Ara ara... reaching above your own station? You may only recolor roles beneath your highest, my dear.'
                 });
             }
 
             // Verify bot can manage this role
             if (colorRole.position >= botMember.roles.highest.position) {
                 return await interaction.editReply({
-                    content: '❌ Cannot modify this role - it\'s higher than my highest role in the hierarchy'
+                    content: '❌ That role outranks me in the hierarchy... how vexing. I cannot modify it.'
                 });
             }
 
@@ -205,7 +205,7 @@ module.exports = {
                 if (emoji.toLowerCase() === 'none') {
                     iconPayload = null;
                     unicodeEmojiPayload = null;
-                    responseLines.push('❌ **Role icon emoji removed!**');
+                    responseLines.push('🥀 **The icon is gone — swallowed by the shadows.**');
                 } else {
                     const customEmojiMatch = emoji.match(/<?a?:?\w+:(\d+)>?/);
                     if (customEmojiMatch) {
@@ -248,12 +248,12 @@ module.exports = {
             // Handle specific error cases
             if (error.code === 50013) {
                 return await interaction.editReply({
-                    content: '❌ Missing permissions to manage roles'
+                    content: '❌ My hands are tied — I lack permission to manage roles here.'
                 });
             }
 
             await interaction.editReply({
-                content: `❌ An error occurred: ${error.message}`
+                content: `❌ Ara... the gears slipped: ${error.message}`
             });
         }
     }

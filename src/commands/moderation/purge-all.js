@@ -10,6 +10,7 @@ const {
 const config = require('../../config/config');
 const { filterChoices, matchesFilter } = require('../../lib/messageFilters');
 const { purgeState } = require('../../services/purgeSessions');
+const persona = require('../../lib/persona');
 
 module.exports = {
     data: new SlashCommandBuilder()
@@ -41,8 +42,9 @@ module.exports = {
         if (!interaction.guild) {
             const embed = new EmbedBuilder()
                 .setTitle('❌ Server-Only Command')
-                .setDescription('This command can only be used in a server.')
-                .setColor('#e74c3c');
+                .setDescription(persona.serverOnly())
+                .setColor(persona.colors.blood)
+                .setFooter({ text: persona.footer() });
             return isInteraction
                 ? interaction.reply({ embeds: [embed], flags: 64 })
                 : interaction.reply({ embeds: [embed] }).catch(() => {});
@@ -65,9 +67,10 @@ module.exports = {
             
             if (!isOwner && !hasManageMessages) {
                 const embed = new EmbedBuilder()
-                    .setTitle('❌ Permission Denied')
-                    .setDescription('You do not have the required permissions to use this command.')
-                    .setColor('#e74c3c');
+                    .setTitle('🥀 Permission Denied')
+                    .setDescription(persona.deny())
+                    .setColor(persona.colors.blood)
+                    .setFooter({ text: persona.footer() });
                 return interaction.reply({ embeds: [embed] });
             }
 
@@ -120,8 +123,9 @@ module.exports = {
         if (purgeState.has(channel.id)) {
             const embed = new EmbedBuilder()
                 .setTitle('⚠️ Purge Already Running')
-                .setDescription('A purge is already running in this channel. Use `zzstoppurge` to stop it.')
-                .setColor('#f39c12');
+                .setDescription('Ara ara... greedy, aren\'t we? I am already dining in this channel. Use `zzstoppurge` if you wish me to stop.')
+                .setColor(persona.colors.amber)
+                .setFooter({ text: persona.footer() });
             return isInteraction 
                 ? interaction.reply({ embeds: [embed], flags: 64 })
                 : interaction.channel.send({ embeds: [embed] });
@@ -132,20 +136,20 @@ module.exports = {
         const limitText = amount ? `up to **${amount}** messages` : 'all matching messages in the channel history';
 
         const confirmEmbed = new EmbedBuilder()
-            .setTitle('⚠️ PURGE WARNING')
-            .setDescription(`You are about to delete **${filterLabel}** (${limitText}) in <#${channel.id}>!\n\nThis action **cannot be undone**.\n\nAre you sure you want to proceed?`)
-            .setColor('#e74c3c')
-            .setFooter({ text: 'Interaction times out in 30 seconds' })
+            .setTitle('⚠️ A Feast Awaits')
+            .setDescription(`You are inviting me to devour **${filterLabel}** (${limitText}) in <#${channel.id}>...\n\nOnce eaten, their time **cannot be returned**. Not even by me.\n\nShall we begin, my dear? Kihihi ♡`)
+            .setColor(persona.colors.blood)
+            .setFooter({ text: 'Decide within 30 seconds... I do hate to be kept waiting.' })
             .setTimestamp();
 
         const confirmBtn = new ButtonBuilder()
             .setCustomId('purge_confirm')
-            .setLabel('Confirm Purge')
+            .setLabel('Begin the Feast')
             .setStyle(ButtonStyle.Danger);
 
         const cancelBtn = new ButtonBuilder()
             .setCustomId('purge_cancel')
-            .setLabel('Cancel')
+            .setLabel('Spare Them')
             .setStyle(ButtonStyle.Secondary);
 
         const row = new ActionRowBuilder().addComponents(confirmBtn, cancelBtn);
@@ -172,9 +176,10 @@ module.exports = {
                 if (isInteraction) {
                     // Update prompt to show starting status
                     const statusEmbed = new EmbedBuilder()
-                        .setTitle('🗑️ Purge Starting')
-                        .setDescription('Purge has started. Use `zzstoppurge` to stop.')
-                        .setColor('#f39c12')
+                        .setTitle('🗑️ The Feast Begins')
+                        .setDescription('Ufufu... how generous of you. Use `zzstoppurge` if your nerve fails.')
+                        .setColor(persona.colors.amber)
+                        .setFooter({ text: persona.footer() })
                         .setTimestamp();
                     
                     await i.update({ embeds: [statusEmbed], components: [] });
@@ -194,8 +199,9 @@ module.exports = {
 
                 const cancelEmbed = new EmbedBuilder()
                     .setTitle('❌ Purge Cancelled')
-                    .setDescription('The purge operation has been cancelled.')
-                    .setColor('#3498db')
+                    .setDescription('Ara... mercy, is it? How very *soft* of you. They shall keep their little seconds — this time.')
+                    .setColor(persona.colors.crimson)
+                    .setFooter({ text: persona.footer() })
                     .setTimestamp();
 
                 await i.update({ embeds: [cancelEmbed], components: [] });
@@ -212,8 +218,9 @@ module.exports = {
             if (reason === 'time') {
                 const timeoutEmbed = new EmbedBuilder()
                     .setTitle('❌ Purge Cancelled')
-                    .setDescription('No confirmation received within 30 seconds.')
-                    .setColor('#e74c3c')
+                    .setDescription('You kept a lady waiting past thirty seconds... so I have withdrawn the invitation. How terribly rude, my dear.')
+                    .setColor(persona.colors.blood)
+                    .setFooter({ text: persona.footer() })
                     .setTimestamp();
                 await response.edit({ embeds: [timeoutEmbed], components: [] }).catch(() => {});
 
@@ -312,9 +319,10 @@ module.exports = {
                 // Update progress embed if status message is configured (only in Slash mode)
                 if (statusMsg) {
                     const updateEmbed = new EmbedBuilder()
-                        .setTitle('🗑️ Purging in Progress')
-                        .setDescription(`Messages deleted: **${totalDeleted}**`)
-                        .setColor('#f39c12')
+                        .setTitle('🗑️ The Feast Continues...')
+                        .setDescription(`Messages devoured so far: **${totalDeleted}**\nKihihi... every last second of them.`)
+                        .setColor(persona.colors.amber)
+                        .setFooter({ text: persona.footer() })
                         .setTimestamp();
                     await statusMsg.edit({ embeds: [updateEmbed] }).catch(() => {});
                 }
@@ -328,8 +336,9 @@ module.exports = {
             if (statusMsg) {
                 const completeEmbed = new EmbedBuilder()
                     .setTitle('✅ Purge Complete')
-                    .setDescription(`Successfully deleted **${totalDeleted}** messages.`)
-                    .setColor('#2ecc71')
+                    .setDescription(`Delicious... **${totalDeleted}** messages, consumed whole. Not a crumb of their time remains ♡`)
+                    .setColor(persona.colors.gold)
+                    .setFooter({ text: persona.footer() })
                     .setTimestamp();
                 await statusMsg.edit({ embeds: [completeEmbed] }).catch(() => {});
             }
@@ -340,13 +349,14 @@ module.exports = {
             
             const logEmbed = new EmbedBuilder()
                 .setTitle('🗑️ Channel Purged')
-                .setDescription(`Successfully deleted **${totalDeleted}** message(s) in <#${channel.id}>.`)
+                .setDescription(`**${totalDeleted}** message(s) in <#${channel.id}> have been... relieved of their time. Ufufu.`)
                 .addFields(
                     { name: 'Moderator', value: `${author.tag} (${author.id})`, inline: true },
                     { name: 'Channel', value: `<#${channel.id}>`, inline: true },
                     { name: 'Filter', value: `${filterLabel}`, inline: true }
                 )
-                .setColor('#2ecc71')
+                .setColor(persona.colors.gold)
+                .setFooter({ text: persona.footer() })
                 .setTimestamp();
 
             let logged = false;
@@ -369,8 +379,9 @@ module.exports = {
             if (statusMsg) {
                 const errorEmbed = new EmbedBuilder()
                     .setTitle('❌ Purge Stopped')
-                    .setDescription(`Purge stopped due to error: ${error.message}\nMessages deleted before stopping: **${totalDeleted}**`)
-                    .setColor('#e74c3c')
+                    .setDescription(`Ara... something interrupted my meal: ${error.message}\nMessages devoured before the interruption: **${totalDeleted}**`)
+                    .setColor(persona.colors.blood)
+                    .setFooter({ text: persona.footer() })
                     .setTimestamp();
                 await statusMsg.edit({ embeds: [errorEmbed] }).catch(() => {});
             }

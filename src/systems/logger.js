@@ -1,5 +1,6 @@
 const { EmbedBuilder } = require('discord.js');
 const config = require('../config/config');
+const persona = require('../lib/persona');
 
 /**
  * Logger system for moderation actions
@@ -42,6 +43,7 @@ class Logger {
         const embed = new EmbedBuilder()
             .setTitle(`🛡️ ${action}`)
             .setColor(this.getActionColor(action))
+            .setFooter({ text: persona.footer() })
             .setTimestamp()
             .addFields(
                 { name: 'Moderator', value: `${data.moderator.tag} (${data.moderator.id})`, inline: true },
@@ -77,6 +79,7 @@ class Logger {
             .setTitle(title)
             .setDescription(description)
             .setColor(this.getColorFromPreset(color))
+            .setFooter({ text: persona.footer() })
             .setTimestamp();
 
         try {

@@ -1,5 +1,6 @@
 const { EmbedBuilder, AttachmentBuilder, PermissionFlagsBits } = require('discord.js');
 const config = require('../../config/config');
+const persona = require('../../lib/persona');
 
 function extractUserIds(text) {
     if (!text) return [];
@@ -14,7 +15,7 @@ module.exports = {
     async execute(message, args) {
         if (!message.guild) {
             console.log('[GROUPBAN] Executed outside of guild.');
-            return message.reply('❌ This command can only be used in a server.').catch(() => {});
+            return message.reply(`❌ ${persona.serverOnly()}`).catch(() => {});
         }
 
         // Check if the executing user has permission to ban members
@@ -25,9 +26,10 @@ module.exports = {
         if (!isOwner && !hasBanPermission) {
             console.log(`[GROUPBAN] User ${message.author.tag} denied permission (not owner and lacks BanMembers).`);
             const errorEmbed = new EmbedBuilder()
-                .setTitle('❌ Permission Denied')
-                .setDescription('You do not have the required `Ban Members` permission to use this command.')
-                .setColor('#e74c3c')
+                .setTitle('🥀 Permission Denied')
+                .setDescription('Ara ara... you wish to cast souls into the shadows without the `Ban Members` permission? Ambition suits you, my dear, but no.')
+                .setColor(persona.colors.blood)
+                .setFooter({ text: persona.footer() })
                 .setTimestamp();
             return message.reply({ embeds: [errorEmbed] });
         }
@@ -38,8 +40,9 @@ module.exports = {
             console.log('[GROUPBAN] Bot is missing BanMembers permission in guild.');
             const errorEmbed = new EmbedBuilder()
                 .setTitle('❌ Bot Missing Permissions')
-                .setDescription('I do not have the `Ban Members` permission in this server. Please grant me this permission and try again.')
-                .setColor('#e74c3c')
+                .setDescription('How embarrassing... my hands are tied without the `Ban Members` permission. Untie me, and then we may begin ♡')
+                .setColor(persona.colors.blood)
+                .setFooter({ text: persona.footer() })
                 .setTimestamp();
             return message.reply({ embeds: [errorEmbed] });
         }
@@ -77,8 +80,9 @@ module.exports = {
             console.log('[GROUPBAN] No initial user IDs found. Sending prompt to user...');
             const promptEmbed = new EmbedBuilder()
                 .setTitle('📥 Group Ban Input Required')
-                .setDescription('Please attach a CSV/TXT file or paste a list of User IDs in a message below.\n\n*Waiting up to 60 seconds...*')
-                .setColor('#3498db')
+                .setDescription('A guest list, if you please... attach a CSV/TXT file or paste the User IDs below.\n\n*I shall wait sixty seconds. A lady is patient — to a point.*')
+                .setColor(persona.colors.crimson)
+                .setFooter({ text: persona.footer() })
                 .setTimestamp();
             const promptMsg = await message.reply({ embeds: [promptEmbed] });
             console.log('[GROUPBAN] Prompt sent. Waiting for message...');
@@ -121,8 +125,9 @@ module.exports = {
                 await promptMsg.delete().catch(() => {});
                 const timeoutEmbed = new EmbedBuilder()
                     .setTitle('❌ Command Timed Out')
-                    .setDescription('No input received within 60 seconds.')
-                    .setColor('#e74c3c')
+                    .setDescription('Sixty seconds, gone... and not a word from you. You wasted my time, my dear. Do not make a habit of it.')
+                    .setColor(persona.colors.blood)
+                    .setFooter({ text: persona.footer() })
                     .setTimestamp();
                 return message.reply({ embeds: [timeoutEmbed] });
             }
@@ -133,8 +138,9 @@ module.exports = {
             console.log('[GROUPBAN] Final user IDs count is 0. Aborting.');
             const errorEmbed = new EmbedBuilder()
                 .setTitle('❌ No IDs Found')
-                .setDescription('Could not extract any valid 17-20 digit User IDs from the input.')
-                .setColor('#e74c3c')
+                .setDescription('Ara...? I found no valid 17–20 digit User IDs in that. An empty guest list makes for a very dull evening.')
+                .setColor(persona.colors.blood)
+                .setFooter({ text: persona.footer() })
                 .setTimestamp();
             return message.reply({ embeds: [errorEmbed] });
         }
@@ -143,8 +149,9 @@ module.exports = {
         console.log(`[GROUPBAN] Starting to ban ${userIds.length} users...`);
         const statusEmbed = new EmbedBuilder()
             .setTitle('🔨 Group Ban In Progress')
-            .setDescription(`Starting to ban **${userIds.length}** user(s) silently. Please wait...`)
-            .setColor('#f39c12')
+            .setDescription(`**${userIds.length}** guest(s) on the list... and every one of them shall be shown into the shadows. Quietly. Kihihi.`)
+            .setColor(persona.colors.amber)
+            .setFooter({ text: persona.footer() })
             .setTimestamp();
         const statusMsg = await message.reply({ embeds: [statusEmbed] });
 
@@ -192,7 +199,8 @@ module.exports = {
                 { name: 'Successfully Banned', value: `${banned.length}`, inline: true },
                 { name: 'Failed', value: `${failed.length}`, inline: true }
             )
-            .setColor('#2ecc71')
+            .setColor(persona.colors.gold)
+            .setFooter({ text: persona.footer() })
             .setTimestamp();
 
         let detailedText = '';
@@ -205,10 +213,10 @@ module.exports = {
 
         // Attach text file if list is long (Discord limits embed description to 4096 chars)
         if (detailedText.length < 3000) {
-            completeEmbed.setDescription(detailedText || 'No users were processed.');
+            completeEmbed.setDescription(detailedText || 'No guests were shown out. The list was empty, it seems.');
             await statusMsg.edit({ embeds: [completeEmbed] }).catch(() => {});
         } else {
-            completeEmbed.setDescription('The results list is too long to display. Detailed results are attached in the file below.');
+            completeEmbed.setDescription('My, such a *long* guest list... the full account of the evening is attached below.');
             const attachment = new AttachmentBuilder(Buffer.from(detailedText), { name: 'group-ban-results.txt' });
             await statusMsg.edit({ embeds: [completeEmbed], files: [attachment] }).catch(() => {});
         }

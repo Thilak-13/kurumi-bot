@@ -1,5 +1,6 @@
 const { EmbedBuilder } = require('discord.js');
 const config = require('../config/config');
+const persona = require('../lib/persona');
 
 /**
  * Unified command dispatch pipeline for slash and prefix commands.
@@ -33,9 +34,10 @@ async function dispatchSlashCommand(interaction) {
 
         if (!allowed) {
             const embed = new EmbedBuilder()
-                .setTitle('❌ Permission Denied')
-                .setDescription('You do not have the required permissions to use this command.')
-                .setColor('#e74c3c');
+                .setTitle('🥀 Permission Denied')
+                .setDescription(persona.deny())
+                .setColor(persona.colors.blood)
+                .setFooter({ text: persona.footer() });
             return interaction.reply({ embeds: [embed], flags: 64 });
         }
 
@@ -47,8 +49,9 @@ async function dispatchSlashCommand(interaction) {
 
         const errorEmbed = new EmbedBuilder()
             .setTitle('❌ Command Error')
-            .setDescription('An error occurred while executing this command.')
-            .setColor('#e74c3c');
+            .setDescription(persona.error())
+            .setColor(persona.colors.blood)
+            .setFooter({ text: persona.footer() });
 
         const errorMessage = { embeds: [errorEmbed], flags: 64 };
 
@@ -106,7 +109,7 @@ async function dispatchPrefixCommand(message) {
         await command.execute(message, args);
     } catch (error) {
         console.error(`Error executing ${commandName}:`, error);
-        message.reply('❌ Command failed.').catch(() => {});
+        message.reply(`❌ ${persona.error()}`).catch(() => {});
     }
 }
 

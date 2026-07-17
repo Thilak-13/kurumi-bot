@@ -24,10 +24,10 @@ module.exports = {
 
     // Bot configuration
     bot: {
-        name: 'Moderation Bot',
+        name: 'Kurumi Tokisaki',
         version: '1.0.0',
         prefix: 'zz',
-        color: 0x5865F2 // Discord blue
+        color: 0xB01E36 // Kurumi crimson
     },
     
     // Permission settings
