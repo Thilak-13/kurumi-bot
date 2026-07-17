@@ -6,6 +6,8 @@ const Database = require('../database');
 const AccessControl = require('../systems/accessControl');
 const { createClient } = require('./client');
 const { loadCommands, loadEvents } = require('./loaders');
+const { TaskRegistry } = require('./tasks');
+const { installShutdownHandlers } = require('./shutdown');
 
 /**
  * Application bootstrap: builds the client, wires core services, loads
@@ -31,16 +33,13 @@ async function start() {
         console.error('Discord client error:', error);
     });
 
-    process.on('SIGINT', async () => {
-        console.log('\n🛑 Shutting down...');
+    // Background engines (started after login, stopped on shutdown)
+    const tasks = new TaskRegistry()
+        .register('Manga scheduler', require('../systems/mangaScheduler'))
+        .register('AutoPurge engine', require('../systems/autoPurgeEngine'))
+        .register('Emoji loop engine', require('../systems/emojiLoopEngine'));
 
-        if (client.database.connected) {
-            await client.database.disconnect();
-        }
-
-        client.destroy();
-        process.exit(0);
-    });
+    installShutdownHandlers(client, tasks);
 
     console.log('🤖 Private Moderation Bot v' + config.bot.version);
 
@@ -67,33 +66,10 @@ async function start() {
     console.log(`✅ Loaded ${loaded} commands\n`);
     loadEvents(client);
 
-    // Login to Discord
+    // Login to Discord, then start background engines
     try {
         await client.login(config.token);
-        // initialize manga scheduler (timers for chapter counters)
-        try {
-            const mangaScheduler = require('../systems/mangaScheduler');
-            await mangaScheduler.init(client);
-            console.log('✅ Manga scheduler initialized');
-        } catch (err) {
-            console.error('Failed to initialize manga scheduler:', err.message);
-        }
-        // initialize auto purge engine (event-driven)
-        try {
-            const autoPurgeEngine = require('../systems/autoPurgeEngine');
-            await autoPurgeEngine.init(client);
-            console.log('✅ AutoPurge engine initialized');
-        } catch (err) {
-            console.error('Failed to initialize AutoPurge engine:', err.message);
-        }
-        // initialize emoji loop engine (refreshes emojis and stickers)
-        try {
-            const emojiLoopEngine = require('../systems/emojiLoopEngine');
-            await emojiLoopEngine.init(client);
-            console.log('✅ Emoji loop engine initialized');
-        } catch (err) {
-            console.error('Failed to initialize emoji loop engine:', err.message);
-        }
+        await tasks.initAll(client);
     } catch (error) {
         console.error('❌ Login failed:', error.message);
         process.exit(1);
