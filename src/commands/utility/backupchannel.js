@@ -1,30 +1,7 @@
 const { SlashCommandBuilder, AttachmentBuilder, EmbedBuilder, PermissionFlagsBits, ChannelType } = require('discord.js');
 const AdmZip = require('adm-zip');
 const config = require('../../config/config');
-
-// Helper to create error embed
-function createErrorEmbed(title, description) {
-    return new EmbedBuilder()
-        .setTitle(`❌ ${title}`)
-        .setDescription(description)
-        .setColor('#e74c3c');
-}
-
-// Helper to create info embed
-function createInfoEmbed(title, description) {
-    return new EmbedBuilder()
-        .setTitle(`ℹ️ ${title}`)
-        .setDescription(description)
-        .setColor('#3498db');
-}
-
-// Helper to create success embed
-function createSuccessEmbed(title, description) {
-    return new EmbedBuilder()
-        .setTitle(`✅ ${title}`)
-        .setDescription(description)
-        .setColor('#2ecc71');
-}
+const { createErrorEmbed, createInfoEmbed, createSuccessEmbed } = require('../../lib/embeds');
 
 // Helper to download asset to Buffer and get filename info
 async function downloadAsset(url, originalFilename) {

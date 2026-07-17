@@ -8,22 +8,10 @@ const {
     ChannelType
 } = require('discord.js');
 const config = require('../../config/config');
+const { filterChoices, matchesFilter } = require('../../lib/messageFilters');
 
 // Global purge state tracker
 const purgeState = new Map();
-
-const filterChoices = [
-    { name: 'All Messages', value: 'all' },
-    { name: 'Images', value: 'image' },
-    { name: 'Videos', value: 'video' },
-    { name: 'Links', value: 'link' },
-    { name: 'Files', value: 'file' },
-    { name: 'Embeds', value: 'embed' },
-    { name: 'Sounds/Voice', value: 'sound' },
-    { name: 'Polls', value: 'poll' },
-    { name: 'Stickers', value: 'sticker' },
-    { name: 'Emojis', value: 'emoji' }
-];
 
 module.exports = {
     data: new SlashCommandBuilder()
@@ -272,44 +260,8 @@ module.exports = {
                     continue;
                 }
 
-                // Apply selected filter
-                const toDelete = toFilter.filter(msg => {
-                    if (filterType === 'all') return true;
-
-                    switch (filterType) {
-                        case 'image':
-                            const hasImgAttach = msg.attachments.some(att => att.contentType?.startsWith('image/'));
-                            const hasImgEmbed = msg.embeds.some(emb => emb.type === 'image' || emb.image);
-                            return hasImgAttach || hasImgEmbed;
-                        case 'video':
-                            const hasVidAttach = msg.attachments.some(att => att.contentType?.startsWith('video/'));
-                            const hasVidEmbed = msg.embeds.some(emb => emb.type === 'video' || emb.video);
-                            return hasVidAttach || hasVidEmbed;
-                        case 'link':
-                            const linkRegex = /https?:\/\/[^\s]+/i;
-                            return linkRegex.test(msg.content);
-                        case 'file':
-                            return msg.attachments.some(att => {
-                                const type = att.contentType;
-                                return !type?.startsWith('image/') && !type?.startsWith('video/') && !type?.startsWith('audio/');
-                            });
-                        case 'embed':
-                            return msg.embeds.length > 0;
-                        case 'sound':
-                            return msg.attachments.some(att => att.contentType?.startsWith('audio/') || att.contentType?.startsWith('voice/'));
-                        case 'poll':
-                            return !!msg.poll;
-                        case 'sticker':
-                            return msg.stickers.size > 0;
-                        case 'emoji': {
-                            const hasCustomEmoji = /<a?:[a-zA-Z0-9_]+:\d+>/g.test(msg.content);
-                            const hasUnicodeEmoji = /\p{Extended_Pictographic}/u.test(msg.content);
-                            return hasCustomEmoji || hasUnicodeEmoji;
-                        }
-                        default:
-                            return false;
-                    }
-                });
+                // Apply selected filter (shared predicate in src/lib/messageFilters)
+                const toDelete = toFilter.filter(msg => matchesFilter(msg, filterType));
 
                 if (toDelete.size === 0) {
                     // If we fetched a batch but none matched the filter, check if we need to continue fetching

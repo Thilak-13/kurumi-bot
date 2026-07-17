@@ -1,5 +1,6 @@
 const { EmbedBuilder } = require('discord.js');
 const appConfig = require('../config/config');
+const { matchesAnyFilter } = require('../lib/messageFilters');
 
 class AutoPurgeEngine {
     constructor(client) {
@@ -8,48 +9,10 @@ class AutoPurgeEngine {
         this.timers = new Map();        // messageId -> timeout handle
     }
 
-    // --- Filter logic (identical to legacy switch-case) ---
+    // --- Filter logic (shared with /purgeall via src/lib/messageFilters) ---
 
     matchesFilters(message, filters) {
-        if (message.system) return false;
-        if (filters.length === 0) return true;
-
-        return filters.some(filter => {
-            switch (filter) {
-                case 'image': {
-                    const hasImgAttach = message.attachments.some(att => att.contentType?.startsWith('image/'));
-                    const hasImgEmbed = message.embeds.some(emb => emb.type === 'image' || emb.image);
-                    return hasImgAttach || hasImgEmbed;
-                }
-                case 'video': {
-                    const hasVidAttach = message.attachments.some(att => att.contentType?.startsWith('video/'));
-                    const hasVidEmbed = message.embeds.some(emb => emb.type === 'video' || emb.video);
-                    return hasVidAttach || hasVidEmbed;
-                }
-                case 'link':
-                    return /https?:\/\/[^\s]+/i.test(message.content);
-                case 'file':
-                    return message.attachments.some(att => {
-                        const type = att.contentType;
-                        return !type?.startsWith('image/') && !type?.startsWith('video/') && !type?.startsWith('audio/');
-                    });
-                case 'embed':
-                    return message.embeds.length > 0;
-                case 'sound':
-                    return message.attachments.some(att => att.contentType?.startsWith('audio/') || att.contentType?.startsWith('voice/'));
-                case 'poll':
-                    return !!message.poll;
-                case 'sticker':
-                    return message.stickers.size > 0;
-                case 'emoji': {
-                    const hasCustomEmoji = /<a?:[a-zA-Z0-9_]+:\d+>/g.test(message.content);
-                    const hasUnicodeEmoji = /\p{Extended_Pictographic}/u.test(message.content);
-                    return hasCustomEmoji || hasUnicodeEmoji;
-                }
-                default:
-                    return false;
-            }
-        });
+        return matchesAnyFilter(message, filters);
     }
 
     // --- Config cache ---

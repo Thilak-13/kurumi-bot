@@ -1,29 +1,6 @@
 const { AttachmentBuilder, EmbedBuilder } = require('discord.js');
 const config = require('../../config/config');
-
-// Helper function to create error embeds
-function createErrorEmbed(title, description) {
-    return new EmbedBuilder()
-        .setTitle(`❌ ${title}`)
-        .setDescription(description)
-        .setColor('#e74c3c');
-}
-
-// Helper function to create info embeds
-function createInfoEmbed(title, description) {
-    return new EmbedBuilder()
-        .setTitle(`ℹ️ ${title}`)
-        .setDescription(description)
-        .setColor('#3498db');
-}
-
-// Helper function to create success embeds
-function createSuccessEmbed(title, description) {
-    return new EmbedBuilder()
-        .setTitle(`✅ ${title}`)
-        .setDescription(description)
-        .setColor('#2ecc71');
-}
+const { createErrorEmbed, createInfoEmbed, createSuccessEmbed } = require('../../lib/embeds');
 
 const DEFAULT_FORMAT = '%u (%i)';
 const DEFAULT_ORDER = 'name';
