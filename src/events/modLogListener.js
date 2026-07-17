@@ -1,8 +1,10 @@
 const { ChannelType } = require('discord.js');
+const config = require('../config/config');
 
-const MOD_LOG_CHANNEL_ID = '1252204886419046483';
-const FORUM_CHANNEL_ID = '1356006813815935096';
-const SAPPHIRE_BOT_ID = process.env.SAPPHIRE_BOT_ID || '678344927997853742';
+// Fallback channel IDs when no per-guild forumLogger settings exist in the DB.
+const MOD_LOG_CHANNEL_ID = config.modLogChannelId;
+const FORUM_CHANNEL_ID = config.moderationForumChannelId;
+const SAPPHIRE_BOT_ID = config.sapphireBotId;
 const CASE_HISTORY_LOOKBACK_LIMIT = 100;
 
 // Prevent duplicate thread creation when many logs for the same user arrive at once.

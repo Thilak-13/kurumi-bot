@@ -18,7 +18,10 @@ module.exports = {
 
     // Forum channel ID for per-user moderation history threads
     moderationForumChannelId: process.env.MODERATION_FORUM_CHANNEL_ID || '1356006813815935096',
-    
+
+    // The external moderation bot whose log messages are mirrored into forum threads
+    sapphireBotId: process.env.SAPPHIRE_BOT_ID || '678344927997853742',
+
     // Bot configuration
     bot: {
         name: 'Moderation Bot',
