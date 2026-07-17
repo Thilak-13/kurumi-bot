@@ -8,11 +8,14 @@ function createClient() {
     const client = new Client({
         intents: [
             GatewayIntentBits.Guilds,
-            GatewayIntentBits.GuildMembers,
-            GatewayIntentBits.GuildMessages,
-            GatewayIntentBits.GuildModeration,
-            GatewayIntentBits.GuildPresences,
-            GatewayIntentBits.MessageContent
+            GatewayIntentBits.GuildMembers,          // rolesync member add/remove, member fetches
+            GatewayIntentBits.GuildMessages,         // prefix commands, autopurge, mod-log mirroring
+            GatewayIntentBits.GuildModeration,       // audit-log events
+            GatewayIntentBits.GuildWebhooks,         // webhook monitoring (webhooksUpdate)
+            GatewayIntentBits.MessageContent         // prefix parsing + content filters
+            // GuildPresences was removed: no handler or .presence read exists
+            // anywhere in src/, and it is the most expensive intent in RAM and
+            // gateway traffic.
         ],
         rest: {
             // Emoji/sticker routes must fail fast instead of queueing behind

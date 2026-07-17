@@ -1,17 +1,13 @@
-# Use Node.js Debian-based image for compilation (includes better compatibility with native packages)
+# Build stage: compile native addons (better-sqlite3)
 FROM node:22-bookworm-slim AS builder
 
 WORKDIR /usr/src/app
 
-# Install build tools and system dependencies required for native addons (better-sqlite3 and canvas)
+# Build tools for native addons. The cairo/pango graphics stack that used to
+# be installed here was only needed by the (removed, unused) canvas package.
 RUN apt-get update && apt-get install -y \
     build-essential \
     python3 \
-    libcairo2-dev \
-    libpango1.0-dev \
-    libjpeg-dev \
-    libgif-dev \
-    librsvg2-dev \
     && rm -rf /var/lib/apt/lists/*
 
 # Copy package configuration
@@ -28,18 +24,11 @@ FROM node:22-bookworm-slim
 
 WORKDIR /usr/src/app
 
-# Install runtime libraries required by node-canvas
-RUN apt-get update && apt-get install -y \
-    libcairo2 \
-    libjpeg62-turbo \
-    libpango-1.0-0 \
-    libpangocairo-1.0-0 \
-    libgif7 \
-    librsvg2-2 \
-    && rm -rf /var/lib/apt/lists/*
-
 # Copy compiled node_modules and code from the builder stage
 COPY --from=builder /usr/src/app /usr/src/app
+
+# docker stop must deliver SIGTERM for graceful shutdown (handled in src/core/shutdown.js)
+STOPSIGNAL SIGTERM
 
 # Start the bot
 CMD ["node", "index.js"]

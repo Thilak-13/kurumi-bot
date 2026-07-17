@@ -3,7 +3,7 @@ require('dotenv').config();
 const config = require('../config/config');
 const Logger = require('../systems/logger');
 const Database = require('../database');
-const AccessControl = require('../systems/accessControl');
+const AccessControl = require('../services/accessControl');
 const { createClient } = require('./client');
 const { loadCommands, loadEvents } = require('./loaders');
 const { TaskRegistry } = require('./tasks');

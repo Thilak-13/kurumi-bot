@@ -85,8 +85,16 @@ class AccessControl {
         fs.mkdirSync(folder, { recursive: true });
 
         const serialized = JSON.stringify(this.data, null, 2);
-        fs.writeFileSync(this.dataPath, serialized, 'utf8');
-        fs.writeFileSync(this.backupPath, serialized, 'utf8');
+        // Write via temp file + rename so a crash mid-write can never leave a
+        // truncated permissions file (the backup copy stays as second safety net).
+        this.writeAtomic(this.dataPath, serialized);
+        this.writeAtomic(this.backupPath, serialized);
+    }
+
+    writeAtomic(filePath, contents) {
+        const tmpPath = `${filePath}.tmp`;
+        fs.writeFileSync(tmpPath, contents, 'utf8');
+        fs.renameSync(tmpPath, filePath);
     }
 
     grant(guildId, commandName, targetType, targetId) {

@@ -7,7 +7,10 @@ const config = require('../config/config');
 const { EmbedBuilder } = require('discord.js');
 
 module.exports = {
-    name: 'webhookUpdate',
+    // discord.js v14 renamed this event to 'webhooksUpdate'; the old
+    // 'webhookUpdate' name (plus the missing GuildWebhooks intent) meant this
+    // listener never fired at all.
+    name: 'webhooksUpdate',
 
     async execute(channel) {
         const guild = channel.guild;
