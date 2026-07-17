@@ -5,7 +5,7 @@ const path = require('path');
 const { Client, Collection, GatewayIntentBits } = require('discord.js');
 const config = require('./src/config/config');
 const Logger = require('./src/systems/logger');
-const Database = require('./src/systems/database');
+const Database = require('./src/database');
 const AccessControl = require('./src/systems/accessControl');
 
 // Create Discord client

@@ -241,12 +241,7 @@ class EmojiLoopEngine {
 
             // Save updated pending list and schedule next run
             const nextRunTime = Date.now() + nextRunDelay;
-            const stmt = db.db.prepare(`
-                UPDATE emoji_loops 
-                SET pending_items = ?, last_run = ?, next_run = ? 
-                WHERE guild_id = ?
-            `);
-            stmt.run(JSON.stringify(pendingItems), Date.now(), nextRunTime, guildId);
+            db.updateEmojiLoopQueue(guildId, pendingItems, Date.now(), nextRunTime);
 
         } catch (error) {
             console.error(`[Emoji Loop] Error during execution cycle for guild ${guildId}:`, error);
