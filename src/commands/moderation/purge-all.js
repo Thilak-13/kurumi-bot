@@ -9,9 +9,7 @@ const {
 } = require('discord.js');
 const config = require('../../config/config');
 const { filterChoices, matchesFilter } = require('../../lib/messageFilters');
-
-// Global purge state tracker
-const purgeState = new Map();
+const { purgeState } = require('../../services/purgeSessions');
 
 module.exports = {
     data: new SlashCommandBuilder()
@@ -379,7 +377,7 @@ module.exports = {
         }
     },
 
-    // Export purge state so stop-purge can access it
+    // Compatibility accessor (state itself lives in services/purgeSessions)
     getPurgeState() {
         return purgeState;
     }

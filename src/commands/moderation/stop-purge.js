@@ -1,10 +1,11 @@
 const config = require('../../config/config');
 const { EmbedBuilder } = require('discord.js');
+const { purgeState } = require('../../services/purgeSessions');
 
 module.exports = {
     name: 'stoppurge',
     description: 'Stop ongoing purge (Usage: zzstoppurge)',
-    
+
     async execute(message) {
         if (!message.guild) {
             return message.reply('❌ This command can only be used in a server.').catch(() => {});
@@ -13,16 +14,7 @@ module.exports = {
             return;
         }
 
-        const purgeCommand = message.client.commands.get('purgeall');
-        if (!purgeCommand) {
-            const embed = new EmbedBuilder()
-                .setTitle('❌ Error')
-                .setDescription('Purge system is not loaded.')
-                .setColor('#e74c3c');
-            return message.reply({ embeds: [embed] });
-        }
-
-        const state = purgeCommand.getPurgeState().get(message.channel.id);
+        const state = purgeState.get(message.channel.id);
 
         if (!state) {
             const embed = new EmbedBuilder()
