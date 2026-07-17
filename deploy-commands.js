@@ -1,44 +1,30 @@
 require('dotenv').config();
 const { REST, Routes } = require('discord.js');
-const fs = require('fs');
-const path = require('path');
-const config = require('./src/config/config');
+const { collectCommandModules } = require('./src/core/loaders');
 
 const commands = [];
 const commandNames = new Set();
 
-// Load all command files
-const commandsPath = path.join(__dirname, 'src', 'commands');
-const commandFolders = fs.readdirSync(commandsPath);
 let legacyCommandCount = 0;
 let invalidCommandCount = 0;
 
 console.log('📋 Loading commands for deployment...\n');
 
-for (const folder of commandFolders) {
-    const folderPath = path.join(commandsPath, folder);
-    
-    if (!fs.statSync(folderPath).isDirectory()) continue;
+const { modules } = collectCommandModules();
 
-    const commandFiles = fs.readdirSync(folderPath).filter(file => file.endsWith('.js'));
-
-    for (const file of commandFiles) {
-        const filePath = path.join(folderPath, file);
-        const command = require(filePath);
-
-        if ('data' in command && typeof command.execute === 'function' && typeof command.data?.toJSON === 'function') {
-            const commandJson = command.data.toJSON();
-            commands.push(commandJson);
-            commandNames.add(commandJson.name);
-            console.log(`✅ Loaded: ${commandJson.name}`);
-        } else if ('name' in command && typeof command.execute === 'function') {
-            // Legacy prefix commands are runtime-only and should not be deployed via REST.
-            legacyCommandCount++;
-            console.log(`ℹ️ Ignored legacy command: ${command.name}`);
-        } else {
-            invalidCommandCount++;
-            console.warn(`⚠️ Skipped ${file}: invalid command export`);
-        }
+for (const { file, module: command } of modules) {
+    if ('data' in command && typeof command.execute === 'function' && typeof command.data?.toJSON === 'function') {
+        const commandJson = command.data.toJSON();
+        commands.push(commandJson);
+        commandNames.add(commandJson.name);
+        console.log(`✅ Loaded: ${commandJson.name}`);
+    } else if ('name' in command && typeof command.execute === 'function') {
+        // Legacy prefix commands are runtime-only and should not be deployed via REST.
+        legacyCommandCount++;
+        console.log(`ℹ️ Ignored legacy command: ${command.name}`);
+    } else {
+        invalidCommandCount++;
+        console.warn(`⚠️ Skipped ${file}: invalid command export`);
     }
 }
 
