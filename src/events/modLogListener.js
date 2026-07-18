@@ -234,6 +234,12 @@ module.exports = {
         try {
             if (!message?.guild) return;
 
+            // Cheap in-memory gate BEFORE any DB read. This handler only ever
+            // acts on messages from the external mod bot, whose ID is global
+            // config (never overridden per-guild), so the vast majority of
+            // messages are rejected here without touching the database.
+            if (!SAPPHIRE_BOT_ID || message.author?.id !== SAPPHIRE_BOT_ID) return;
+
             const db = message.client.database;
             let modLogChannelId = MOD_LOG_CHANNEL_ID;
             let forumChannelId = FORUM_CHANNEL_ID;
@@ -252,7 +258,6 @@ module.exports = {
 
             // Listen only to Sapphire logs in the configured moderation log channel.
             if (message.channelId !== modLogChannelId) return;
-            if (!SAPPHIRE_BOT_ID || message.author?.id !== SAPPHIRE_BOT_ID) return;
 
             const userId = await extractUserId(message);
             if (!userId) return;

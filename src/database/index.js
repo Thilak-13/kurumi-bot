@@ -43,6 +43,10 @@ class Database {
             }
             this.db = new SQLite(dbPath);
             this.db.pragma('journal_mode = WAL');
+            // Safe under WAL: on an OS-level crash at most the last committed
+            // transaction can be lost; the DB never corrupts. Removes an fsync
+            // from every write (autopurge tracks/deletes rows per message).
+            this.db.pragma('synchronous = NORMAL');
             await this.createTables();
 
             for (const repo of [this.moderation, this.guildSettings, this.autopurge, this.roleSync, this.emojiLoop]) {
