@@ -5,6 +5,7 @@
 
 const config = require('../config/config');
 const { EmbedBuilder } = require('discord.js');
+const persona = require('../lib/persona');
 
 module.exports = {
     // discord.js v14 renamed this event to 'webhooksUpdate'; the old
@@ -32,18 +33,18 @@ module.exports = {
         const executorName = executor ? executor.user.tag : `Unknown (${executorId})`;
 
         let actionType = '';
-        let color = '#3498db';
+        let color = persona.colors.crimson;
 
         // Determine action type from audit log
         if (auditEntry.action === 50) { // WebhookCreate
             actionType = 'WEBHOOK CREATED';
-            color = '#2ecc71';
+            color = persona.colors.gold;
         } else if (auditEntry.action === 51) { // WebhookUpdate
             actionType = 'WEBHOOK UPDATED';
-            color = '#f39c12';
+            color = persona.colors.amber;
         } else if (auditEntry.action === 52) { // WebhookDelete
             actionType = 'WEBHOOK DELETED';
-            color = '#e74c3c';
+            color = persona.colors.blood;
         } else {
             return; // Not a webhook action
         }
@@ -51,12 +52,14 @@ module.exports = {
         try {
             const embed = new EmbedBuilder()
                 .setTitle(`🪝 ${actionType}`)
+                .setDescription('Ara ara... someone has been busy with the strings behind the curtain. I saw everything, of course.')
                 .setColor(color)
                 .addFields(
                     { name: 'Executor', value: `<@${executorId}> (${executorName})`, inline: true },
                     { name: 'Channel', value: `<#${channel.id}>`, inline: true },
                     { name: 'Webhook Change', value: `${actionType}`, inline: false }
                 )
+                .setFooter({ text: persona.footer() })
                 .setTimestamp();
 
             // Add reason if available

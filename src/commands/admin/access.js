@@ -199,7 +199,8 @@ module.exports = {
             const embed = new EmbedBuilder()
                 .setTitle(`Access for ${commandName}`)
                 .setDescription(formatList(entry, message.guild))
-                .setColor('#3498db');
+                .setColor(persona.colors.crimson)
+                .setFooter({ text: persona.footer() });
             return message.reply({ embeds: [embed] }).catch(() => {});
         }
 
