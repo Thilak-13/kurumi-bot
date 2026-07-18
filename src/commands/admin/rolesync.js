@@ -4,45 +4,45 @@ const persona = require('../../lib/persona');
 module.exports = {
     data: new SlashCommandBuilder()
         .setName('rolesync')
-        .setDescription('Manage role syncing between guilds')
+        .setDescription('Weave a role across two worlds — I shall tend the threads between guilds ♡')
         .setDefaultMemberPermissions(PermissionFlagsBits.ManageRoles)
         .addSubcommand(subcommand =>
             subcommand
                 .setName('toggle')
-                .setDescription('Toggle a role sync rule (creates if not exists, removes if exists)')
+                .setDescription('Tie the sync thread if it is loose, or cut it if it is bound')
                 .addStringOption(option =>
                     option.setName('guild_1')
-                        .setDescription('The main guild (Guild 1) ID where the role resides')
+                        .setDescription('The main guild (Guild 1) ID — where the role truly lives')
                         .setRequired(true))
                 .addStringOption(option =>
                     option.setName('guild_2')
-                        .setDescription('The secondary guild (Guild 2) ID to track presence in')
+                        .setDescription('The second guild (Guild 2) ID — where I watch for their presence')
                         .setRequired(true))
                 .addStringOption(option =>
                     option.setName('role_id')
-                        .setDescription('The role ID in the main guild (Guild 1)')
+                        .setDescription('The role ID in the main guild (Guild 1) that travels between them')
                         .setRequired(true))
         )
         .addSubcommand(subcommand =>
             subcommand
                 .setName('list')
-                .setDescription('List all active role sync rules')
+                .setDescription('Show every thread I have tied between guilds')
         )
         .addSubcommand(subcommand =>
             subcommand
                 .setName('forcesync')
-                .setDescription('Manually trigger synchronization for a rule')
+                .setDescription('Bring every soul into line with a rule this very moment')
                 .addStringOption(option =>
                     option.setName('guild_1')
-                        .setDescription('The main guild (Guild 1) ID where the role resides')
+                        .setDescription('The main guild (Guild 1) ID — where the role truly lives')
                         .setRequired(true))
                 .addStringOption(option =>
                     option.setName('guild_2')
-                        .setDescription('The secondary guild (Guild 2) ID to track presence in')
+                        .setDescription('The second guild (Guild 2) ID — where I watch for their presence')
                         .setRequired(true))
                 .addStringOption(option =>
                     option.setName('role_id')
-                        .setDescription('The role ID in the main guild (Guild 1)')
+                        .setDescription('The role ID in the main guild (Guild 1) that travels between them')
                         .setRequired(true))
         ),
 

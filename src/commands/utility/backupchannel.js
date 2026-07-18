@@ -35,22 +35,22 @@ async function downloadAsset(url, originalFilename) {
 module.exports = {
     data: new SlashCommandBuilder()
         .setName('backupchannel')
-        .setDescription('Backup all attachments in a channel into ZIP archives')
+        .setDescription('Preserve every attachment in a channel, sealed in ZIP archives ♡')
         .setDefaultMemberPermissions(PermissionFlagsBits.ManageGuild || PermissionFlagsBits.ManageMessages)
         .addChannelOption(option =>
             option.setName('channel')
-                .setDescription('The text channel to backup attachments from (default: current channel)')
+                .setDescription('The channel whose attachments I shall preserve (default: here)')
                 .addChannelTypes(ChannelType.GuildText)
                 .setRequired(false)
         )
         .addIntegerOption(option =>
             option.setName('limit')
-                .setDescription('Maximum number of messages to scan (default: all history)')
+                .setDescription('How far back through time to look (default: all of it)')
                 .setRequired(false)
                 .setMinValue(1)
         ),
     name: 'backupchannel',
-    description: 'Backup all attachments in a channel into ZIP archives',
+    description: 'Preserve every attachment in a channel, sealed in ZIP archives ♡',
 
     async execute(interactionOrMessage, args) {
         const isInteraction = interactionOrMessage.options !== undefined;

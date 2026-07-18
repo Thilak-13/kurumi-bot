@@ -31,14 +31,14 @@ const HOLOGRAPHIC_COLORS = {
 module.exports = {
     data: new SlashCommandBuilder()
         .setName('roleedit')
-        .setDescription('Apply solid, gradient, or holographic style to a role')
+        .setDescription('Dress a role in solid, gradient, or holographic colour — elegantly, of course ♡')
         .addRoleOption(option =>
             option.setName('role')
-                .setDescription('Role to recolor')
+                .setDescription('The role I shall dress anew')
                 .setRequired(true))
         .addStringOption(option =>
             option.setName('style')
-                .setDescription('Color style to apply')
+                .setDescription('The style of gown: solid, gradient, or holographic')
                 .setRequired(false)
                 .addChoices(
                     { name: 'solid', value: 'solid' },
@@ -47,15 +47,15 @@ module.exports = {
                 ))
         .addStringOption(option =>
             option.setName('color1')
-                .setDescription('Primary color (required for solid/gradient)')
+                .setDescription('Primary colour (required for solid or gradient)')
                 .setRequired(false))
         .addStringOption(option =>
             option.setName('color2')
-                .setDescription('Secondary color (required for gradient only)')
+                .setDescription('Secondary colour (for the second shade of a gradient)')
                 .setRequired(false))
         .addStringOption(option =>
             option.setName('emoji')
-                .setDescription('Emoji for the role icon (standard unicode, custom emoji, or "none" to remove)')
+                .setDescription('Emoji for the role icon — unicode, custom, or "none" to strip it away')
                 .setRequired(false))
         .setDefaultMemberPermissions(PermissionFlagsBits.ManageRoles),
 

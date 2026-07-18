@@ -4,27 +4,27 @@ const persona = require('../../lib/persona');
 module.exports = {
     data: new SlashCommandBuilder()
         .setName('emojiloop')
-        .setDescription('Configure continuous emoji and sticker cache refreshes')
+        .setDescription('Keep every emoji and sticker eternally fresh, on my endless little loop ♡')
         .setDefaultMemberPermissions(PermissionFlagsBits.ManageGuildExpressions)
         .addSubcommand(subcommand =>
             subcommand
                 .setName('start')
-                .setDescription('Start the continuous emoji and sticker refresh loop (1 item every 90 seconds)')
+                .setDescription('Wind the loop — one emoji or sticker refreshed every 90 seconds')
         )
         .addSubcommand(subcommand =>
             subcommand
                 .setName('stop')
-                .setDescription('Stop the continuous emoji and sticker refresh loop')
+                .setDescription('Still the hands — halt the refresh loop')
         )
         .addSubcommand(subcommand =>
             subcommand
                 .setName('runnow')
-                .setDescription('Process the next queued emoji or sticker immediately')
+                .setDescription('Attend to the next queued emoji or sticker at once')
         )
         .addSubcommand(subcommand =>
             subcommand
                 .setName('status')
-                .setDescription('Check status and progress of the continuous refresh queue')
+                .setDescription('Peek at the loop and what remains in the queue')
         ),
 
     async execute(interaction) {

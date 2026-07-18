@@ -15,23 +15,23 @@ const persona = require('../../lib/persona');
 module.exports = {
     data: new SlashCommandBuilder()
         .setName('purgeall')
-        .setDescription('Purge messages in this channel with optional filters and limits')
+        .setDescription('Devour messages in this channel — filtered and limited to your taste ♡')
         .setDefaultMemberPermissions(PermissionFlagsBits.ManageMessages)
         .addStringOption(option =>
             option.setName('filter')
-                .setDescription('Type of messages to delete (default: all messages)')
+                .setDescription('Which kind of message shall I devour? (default: all)')
                 .setRequired(false)
                 .addChoices(...filterChoices)
         )
         .addIntegerOption(option =>
             option.setName('amount')
-                .setDescription('Maximum number of messages to search/delete (leave empty to purge everything)')
+                .setDescription('How many to search through (empty to devour them all)')
                 .setRequired(false)
                 .setMinValue(1)
         )
         .addChannelOption(option =>
             option.setName('logchannel')
-                .setDescription('Optional channel to send the purge log/summary to')
+                .setDescription('An optional channel for me to leave the tidy summary')
                 .addChannelTypes(ChannelType.GuildText)
                 .setRequired(false)
         ),

@@ -252,11 +252,11 @@ module.exports = {
     // Slash command registration
     data: new SlashCommandBuilder()
         .setName('help')
-        .setDescription('Show all commands and their syntax'),
+        .setDescription('Let me show you everything I can do... if you dare ♡'),
 
     // Also register as prefix command
     name: 'help',
-    description: 'Show all commands and their syntax',
+    description: 'Let me show you everything I can do... if you dare ♡',
 
     // Unified execute — works for both slash interactions and prefix messages
     async execute(interactionOrMessage, args) {

@@ -4,21 +4,21 @@ const persona = require('../../lib/persona');
 module.exports = {
     data: new SlashCommandBuilder()
         .setName('forumlogger')
-        .setDescription('Configure or manage the Per-User Moderation History Threads (Forum Logger) feature')
+        .setDescription('Keep a private diary of every sinner in a forum channel ♡')
         .setDefaultMemberPermissions(PermissionFlagsBits.ManageGuild)
         .addSubcommand(subcommand =>
             subcommand
                 .setName('setup')
-                .setDescription('Configure the hybrid forum logger for this server')
+                .setDescription('Prepare the diaries — point me to the log and forum channels')
                 .addChannelOption(option =>
                     option.setName('mod_log_channel')
-                        .setDescription('The channel where the moderation logs are posted (e.g. from Sapphire bot)')
+                        .setDescription('The channel where the other bot posts its mod logs')
                         .addChannelTypes(ChannelType.GuildText)
                         .setRequired(true)
                 )
                 .addChannelOption(option =>
                     option.setName('forum_channel')
-                        .setDescription('The forum channel where per-user history threads will be created')
+                        .setDescription('The forum where each history thread shall live')
                         .addChannelTypes(ChannelType.GuildForum)
                         .setRequired(true)
                 )
@@ -26,17 +26,17 @@ module.exports = {
         .addSubcommand(subcommand =>
             subcommand
                 .setName('toggle')
-                .setDescription('Quickly enable or disable the forum logger')
+                .setDescription('Open or close the diaries with a word')
                 .addBooleanOption(option =>
                     option.setName('enabled')
-                        .setDescription('True to enable, False to disable')
+                        .setDescription('True to keep writing, False to rest my pen')
                         .setRequired(true)
                 )
         )
         .addSubcommand(subcommand =>
             subcommand
                 .setName('status')
-                .setDescription('Display the current configuration status of the forum logger')
+                .setDescription('See whether the diaries are open, and where')
         ),
 
     async execute(interaction) {

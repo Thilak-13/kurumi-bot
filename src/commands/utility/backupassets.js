@@ -41,11 +41,11 @@ async function downloadAsset(url, stickerFormat = null) {
 module.exports = {
     data: new SlashCommandBuilder()
         .setName('backupassets')
-        .setDescription('Backup guild custom emojis and stickers into a ZIP archive')
+        .setDescription('Preserve every custom emoji and sticker, sealed in a ZIP ♡')
         .setDefaultMemberPermissions(PermissionFlagsBits.ManageGuildExpressions || PermissionFlagsBits.ManageEmojisAndStickers)
         .addStringOption(option =>
             option.setName('type')
-                .setDescription('Type of assets to backup')
+                .setDescription('Which treasures to preserve')
                 .setRequired(false)
                 .addChoices(
                     { name: 'All', value: 'all' },
@@ -54,7 +54,7 @@ module.exports = {
                 )
         ),
     name: 'backupassets',
-    description: 'Backup guild custom emojis and stickers into a ZIP archive',
+    description: 'Preserve every custom emoji and sticker, sealed in a ZIP ♡',
 
     async execute(interactionOrMessage, args) {
         const isInteraction = interactionOrMessage.options !== undefined;

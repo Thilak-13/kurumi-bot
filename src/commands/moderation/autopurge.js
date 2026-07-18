@@ -18,25 +18,25 @@ const persona = require('../../lib/persona');
 module.exports = {
     data: new SlashCommandBuilder()
         .setName('autopurge')
-        .setDescription('Configure or manage automatic message purging for channels')
+        .setDescription('Arrange a standing feast — messages devoured on a schedule ♡')
         .setDefaultMemberPermissions(PermissionFlagsBits.ManageChannels)
         .addSubcommand(subcommand =>
             subcommand
                 .setName('setup')
-                .setDescription('Start the interactive setup for autopurge')
+                .setDescription('Set the table — arrange a new standing purge')
         )
         .addSubcommand(subcommand =>
             subcommand
                 .setName('list')
-                .setDescription('List all configured autopurge channels')
+                .setDescription('Show every standing arrangement I keep')
         )
         .addSubcommand(subcommand =>
             subcommand
                 .setName('pause')
-                .setDescription('Pause autopurge on a channel')
+                .setDescription('Stop the clock on a channel purge')
                 .addChannelOption(option =>
                     option.setName('channel')
-                        .setDescription('The channel to pause')
+                        .setDescription('The channel whose clock I shall still')
                         .addChannelTypes(ChannelType.GuildText)
                         .setRequired(true)
                 )
@@ -44,10 +44,10 @@ module.exports = {
         .addSubcommand(subcommand =>
             subcommand
                 .setName('resume')
-                .setDescription('Resume autopurge on a channel')
+                .setDescription('Set a channel purge ticking again')
                 .addChannelOption(option =>
                     option.setName('channel')
-                        .setDescription('The channel to resume')
+                        .setDescription('The channel whose clock I shall restart')
                         .addChannelTypes(ChannelType.GuildText)
                         .setRequired(true)
                 )
@@ -55,10 +55,10 @@ module.exports = {
         .addSubcommand(subcommand =>
             subcommand
                 .setName('remove')
-                .setDescription('Remove/Delete autopurge settings for a channel')
+                .setDescription('End the arrangement for a single channel')
                 .addChannelOption(option =>
                     option.setName('channel')
-                        .setDescription('The channel to remove autopurge from')
+                        .setDescription('The channel to release from our arrangement')
                         .addChannelTypes(ChannelType.GuildText)
                         .setRequired(true)
                 )
@@ -66,7 +66,7 @@ module.exports = {
         .addSubcommand(subcommand =>
             subcommand
                 .setName('remove-all')
-                .setDescription('Remove/Delete all autopurge settings for all channels in the server')
+                .setDescription('Tear up every arrangement in the server at once')
         ),
 
     async execute(interaction) {
