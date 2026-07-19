@@ -1,8 +1,17 @@
 require('dotenv').config();
+const path = require('path');
 
 module.exports = {
     // Bot token from environment variables
     token: process.env.BOT_TOKEN,
+
+    // Directory for all persistent runtime data (SQLite DB + JSON state).
+    // Defaults to <project>/data, but set DATA_DIR to an absolute path on a
+    // mounted persistent volume (e.g. /data) so settings survive restarts on
+    // hosts with an ephemeral filesystem.
+    dataDir: process.env.DATA_DIR
+        ? path.resolve(process.env.DATA_DIR)
+        : path.join(__dirname, '..', '..', 'data'),
     
     // Bot owner ID - only this user can run owner commands
     ownerId: (process.env.OWNER_ID || '').trim(),

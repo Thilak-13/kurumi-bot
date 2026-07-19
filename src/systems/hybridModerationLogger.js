@@ -3,7 +3,7 @@ const path = require('path');
 const { AuditLogEvent, ChannelType, EmbedBuilder } = require('discord.js');
 const config = require('../config/config');
 
-const THREAD_MAP_PATH = path.join(__dirname, '..', '..', 'data', 'moderation-thread-map.json');
+const THREAD_MAP_PATH = path.join(config.dataDir, 'moderation-thread-map.json');
 const MATCH_WINDOW_SECONDS = 90;
 const MOD_LOG_FETCH_LIMIT = 100;
 

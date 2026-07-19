@@ -4,8 +4,8 @@ const config = require('../config/config');
 
 class AccessControl {
     constructor() {
-        this.dataPath = path.join(__dirname, '..', '..', 'data', 'command-access.json');
-        this.backupPath = path.join(__dirname, '..', '..', 'data', 'command-access.backup.json');
+        this.dataPath = path.join(config.dataDir, 'command-access.json');
+        this.backupPath = path.join(config.dataDir, 'command-access.backup.json');
         this.data = { guilds: {} };
         this.load();
     }

@@ -35,7 +35,8 @@ class Database {
      */
     async connect() {
         try {
-            const dbPath = path.join(__dirname, '..', '..', 'data', 'bot.db');
+            const config = require('../config/config');
+            const dbPath = path.join(config.dataDir, 'bot.db');
             const dbDir = path.dirname(dbPath);
             const fs = require('fs');
             if (!fs.existsSync(dbDir)) {
